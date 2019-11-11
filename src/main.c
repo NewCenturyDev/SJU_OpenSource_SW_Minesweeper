@@ -14,6 +14,11 @@ unsigned char *m;
 char p[] = { ' ', 'O', 'X', '_' };
 // Mark characters
 
+typedef struct Pos { //계산 혹은 함수값 리턴시 x, y의 값을 한번에 다루기 위한 구조체
+	int posX;
+	int posY;
+}Pos;
+
 #define NONE 0
 #define SAFE 1
 #define MINE 2
