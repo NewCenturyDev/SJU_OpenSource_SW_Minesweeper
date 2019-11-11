@@ -19,6 +19,11 @@ typedef struct Pos { //계산 혹은 함수값 리턴시 x, y의 값을 한번�
 	int posY;
 }Pos;
 
+typedef struct StackNode { //스택 구조를 사용하기 위한 구조체
+	Pos ele;
+	struct StackNode *next;
+}StackNode;
+
 #define NONE 0
 #define SAFE 1
 #define MINE 2
@@ -38,6 +43,48 @@ typedef struct Pos { //계산 혹은 함수값 리턴시 x, y의 값을 한번�
 #define SET_VISI(x, y, s) M(x, y)=s?M(x, y)|2:M(x, y)&254
 #define SET_MARK(x, y, s) M(x, y)=s&2?s&1?M(x, y)|12:(M(x, y)&243)|8:s&1?M(x, y)&243|4:M(x, y)&243
 #define INC_NUM(x, y) if (!IS_OUT(x, y)) M(x, y)=(M(x, y)&15)|(GET_NUM(x, y)+1)<<4
+
+StackNode *Push(StackNode *stack, Pos pos) { //스택에 푸시하는 함수
+	StackNode *newNode; //새로 생성한 노드
+	StackNode *pushNode; //푸시할 위치의 전 노드
+
+	newNode = (StackNode *)malloc(sizeof(StackNode)); //노드에 메모리를 할당
+	(newNode->ele).posX = pos.posX; //새로 생성한 노드에 푸시하고자하는 위치값을 저장
+	(newNode->ele).posY = pos.posY;
+	newNode->next = NULL; //새로 생성한 노드의 다음은 널 포인터를 가리켜 마지막을 알 수 있게함
+
+	if (stack == NULL) //스택이 비어있다면 새로 생성한 노드를 리턴
+		return newNode;
+	
+	pushNode = stack; //스택이 비어있지않다면 현재의 마지막 노드로 이동하여 새로 생성한 노드를 마지막에 오도록 추가
+	while (pushNode->next != NULL)
+		pushNode = pushNode->next;
+	pushNode->next = newNode;
+
+	return stack; //스택을 리턴
+}
+
+Pos Pop(StackNode **stack) { //스택의 노드를 팝하는 함수
+	Pos e; //팝할 노드의 원소를 담을 변수
+	StackNode *popNode; //메모리 해제를 하기 위해 팝할 노드를 가리킬 변수
+
+	e = (*stack)->ele; //팝할 노드의 원소와 노드를 저장
+	popNode = *stack; 
+
+	*stack = (*stack)->next; //스택이 스택의 다음 노드를 가리키게 함
+	
+	free(popNode); //팝한 노드 메모리 할당 해제
+	return e; //팝한 노드의 원소를 리턴
+}
+
+int IsEmptyStack(StackNode *stack) { //스택이 비어있는지 확인하는 함수
+	const int TRUE = 1; 
+	const int FALSE = 0;
+
+	if (stack == NULL) //스택이 비어있다면 TRUE를 리턴
+		return TRUE;
+	return FALSE; //스택이 비어있지않다면 FALSE를 리턴
+}
 
 void bfs(int x, int y) {
 	if (IS_OUT(x, y) || IS_VISI(x, y))
