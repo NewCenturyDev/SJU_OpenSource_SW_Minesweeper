@@ -86,21 +86,66 @@ int IsEmptyStack(StackNode *stack) { //스택이 비어있는지 확인하는 �
 	return FALSE; //스택이 비어있지않다면 FALSE를 리턴
 }
 
+void SetAdjecantPosition(Pos *adjPos, Pos pos) { //x, y 주변의 인접한 8칸의 좌표들을 배열에 옮겨담는 함수
+	adjPos[0].posX = pos.posX; //기존의 좌표에서 북쪽에 있는 좌표 
+	adjPos[0].posY = pos.posY + 1;
+
+	adjPos[1].posX = pos.posX + 1; //북동쪽에 있는 좌표
+	adjPos[1].posY = pos.posY + 1;
+
+	adjPos[2].posX = pos.posX + 1; //동쪽에 있는 좌표
+	adjPos[2].posY = pos.posY;
+
+	adjPos[3].posX = pos.posX + 1; //남동쪽에 있는 좌표
+	adjPos[3].posY = pos.posY - 1;
+
+	adjPos[4].posX = pos.posX; //남쪽에 있는 좌표
+	adjPos[4].posY = pos.posY - 1;
+
+	adjPos[5].posX = pos.posX - 1; //남서쪽에 있는 좌표
+	adjPos[5].posY = pos.posY - 1;
+
+	adjPos[6].posX = pos.posX - 1; //서쪽에 있는 좌표
+	adjPos[6].posY = pos.posY;
+
+	adjPos[7].posX = pos.posX - 1; //북서쪽에 있는 좌표
+	adjPos[7].posY = pos.posY + 1;
+	
+	return;
+}
+
 void bfs(int x, int y) {
-	if (IS_OUT(x, y) || IS_VISI(x, y))
+	const int adjNum = 8; //인접한 칸의 최대 갯수
+	StackNode *stack = NULL; //스택을 가리킬 헤드 포인터
+	Pos adjPos[8]; //스택에서 팝한 좌표의 주변 8칸의 좌표값을 저장할 배열
+	Pos pos; //팝한 노드의 좌표를 저장할 변수
+
+	if (IS_OUT(x, y) || IS_VISI(x, y)) //선택한 좌표가 보이는 상태이거나 범위 밖의 좌표이면 리턴
 		return;
-	++visi;
-	SET_VISI(x, y, 1);
-	if (!GET_NUM(x, y)) {
-		bfs(x - 1, y - 1);
-		bfs(x - 1, y);
-		bfs(x - 1, y + 1);
-		bfs(x, y - 1);
-		bfs(x, y + 1);
-		bfs(x + 1, y - 1);
-		bfs(x + 1, y);
-		bfs(x + 1, y + 1);
+
+	pos.posX = x; //선택한 노드의 x, y 좌표를 구조체 변수에 저장
+	pos.posY = y;
+	stack = Push(stack, pos); //스택에 푸시
+	SetAdjecantPosition(adjPos, pos); //인접한 8칸의 좌표를 배열에 저장
+
+	while (!IsEmptyStack(stack)) { //스택이 비어있지않다면 시행
+		pos = Pop(&stack); //스택의 노드를 팝하고 그 원소를 저장
+		
+		if (!(IS_OUT(pos.posX, pos.posY) || IS_VISI(pos.posX, pos.posY))) { //팝한 좌표가 보이는 상태와 범위 밖의 좌표가 아닐 경우 실행
+			++visi; //보이는 수를 증가시키고 해당 좌표의 칸을 보이는 상태로 변경
+			SET_VISI(pos.posX, pos.posY, 1);
+			
+			if (!GET_NUM(pos.posX, pos.posY)) { //주변의 지뢰가 매설되어 있지 않은 경우 실행
+				SetAdjecantPosition(adjPos, pos); //주변 8칸의 좌표를 배열에 저장
+
+				for (int i = 0;i < adjNum;i++) { //8칸의 좌표를 스택에 푸시
+					stack = Push(stack, adjPos[i]);
+				}
+			}
+		}
 	}
+
+	return;
 }
 
 void print(int c) {
