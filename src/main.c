@@ -3,6 +3,13 @@
 #include <string.h>
 #include <time.h>
 
+typedef struct AreaInfo { //지뢰판의 구역의 정보를 다루는 구조체
+	int isMine;       //지뢰의 유무를 저장하는 변수
+	int isVisible;    //해당 칸이 보여지는 상태를 저장하는 변수
+	int mark;         //해당 칸의 표식이 무엇인지 저장하는 변수
+	int mineNum;      //해당 칸의 주변 지뢰의 수를 저장하는 변수
+}AreaInfo;
+
 int len, col, num, seed, visi = 0, init = 0;
 // Length，Column，Mines, Seed, Visible Grid, Initialized or not
 unsigned char *m;
