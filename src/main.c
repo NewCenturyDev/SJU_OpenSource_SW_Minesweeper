@@ -12,12 +12,7 @@ typedef struct AreaInfo { //지뢰판의 구역의 정보를 다루는 구조체
 
 int len, col, num, seed, visi = 0, init = 0;
 // Length，Column，Mines, Seed, Visible Grid, Initialized or not
-unsigned char *m;
-// 00000000
-//        ^ Is mine or not
-//       ^  Is visible or not
-//     ^~   Mark and type
-// ^~~~     Mines number around this grid
+AreaInfo **areaInfo; //지뢰판의 정보를 저장할 변수
 char p[] = { ' ', 'O', 'X', '_' };
 // Mark characters
 
@@ -41,6 +36,33 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define SET_MARK(x, y, s) M(x, y)=s&2?s&1?M(x, y)|12:(M(x, y)&243)|8:s&1?M(x, y)&243|4:M(x, y)&243
 #define INC_NUM(x, y) if (!IS_OUT(x, y)) M(x, y)=(M(x, y)&15)|(GET_NUM(x, y)+1)<<4
 
+void initArea(int len, int col) {
+	/*
+	기능: 지뢰판을 이차원 배열로 할당하고 초기화가 필요한 구조체 멤버들을 초기화한다.
+	파라미터 : len은 지뢰판의 행의 수를 col은 지뢰판의 열의 수를 나타낸다.
+	*/
+	const int FALSE = 0; //거짓인 상태를 나타낼때 쓰일 상수로, 정수 0의 값을 가진다.
+	const int ZERO = 0;  //갯수가 0일때 쓰일 상수로, 정수 0의 값을 가진다.
+	int i;
+	int j;
+
+	//변수 areaInfo에 이차원 배열을 할당한다.
+	areaInfo = (AreaInfo **)malloc(len * sizeof(AreaInfo *));
+
+	for (i = 0;i < len;i++) {
+		for (j = 0;j < col;j++) {
+			areaInfo[i] = (AreaInfo *)malloc(col * sizeof(AreaInfo));
+
+			//구조체 배열의 멤버 값을 초기화한다.
+			areaInfo[i][j].isMine = FALSE;
+			areaInfo[i][j].isVisible = FALSE;
+			areaInfo[i][j].mineNum = ZERO;
+		}
+	}
+
+	return;
+}
+
 void bfs(int x, int y) {
 	if (IS_OUT(x, y) || IS_VISI(x, y))
 		return;
@@ -52,7 +74,7 @@ void bfs(int x, int y) {
 		bfs(x - 1, y + 1);
 		bfs(x, y - 1);
 		bfs(x, y + 1);
-		bfs(x + 1, y - 1);
+		bfs(x + 1, y - 1);수
 		bfs(x + 1, y);
 		bfs(x + 1, y + 1);
 	}
@@ -206,8 +228,7 @@ int main(int argc, char **argv) {
 	printf("Column: %d\n", col);
 	printf("Mines: %d\n", num);
 	printf("Seed：%d\n", seed);
-	m = (unsigned char *)malloc(len*col);
-	memset(m, 0, len*col);
+	initArea(len, col);
 	print(0);
 	for (; !input(););
 }
