@@ -21,8 +21,6 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define MINE 2
 #define QUERY 3
 
-#define INC_NUM(x, y) if (!IS_OUT(x, y)) M(x, y)=(M(x, y)&15)|(GET_NUM(x, y)+1)<<4
-
 //해당 좌표의 지뢰 유무 값 전달
 int isAreaMine(int x, int y) {
 	int result;
@@ -49,6 +47,17 @@ int areaMineNum(int x, int y) {
 	int result;
 	result = areaInfo[x][y].mineNum;
 	return result;
+}
+
+//입력된 좌표가 범위 밖인지 판단
+int isOut(x, y) {
+	const int OUT = 1; //입력 좌표가 범위 밖임을 나타내는 상수, 정수 1의 값을 가진다.
+	const int IN = 0; //입력 좌표가 범위 안에 있음을 나타내는 상수, 정수 0의 값을 가진다.
+
+	if (x >= len || y >= col || x < 0 || y < 0) {
+		return OUT;
+	}
+	return IN;
 }
 
 void setMine(x, y, s) {
@@ -90,15 +99,8 @@ void setMark(x, y, s) {
 	}
 }
 
-//입력된 좌표가 범위 밖인지 판단
-int isOut(x, y) {
-	const int OUT = 1; //입력 좌표가 범위 밖임을 나타내는 상수, 정수 1의 값을 가진다.
-	const int IN = 0; //입력 좌표가 범위 안에 있음을 나타내는 상수, 정수 0의 값을 가진다.
-
-	if (x >= len || y >= col || x < 0 || y < 0) {
-		return OUT;
-	}
-	return IN;
+void incNum(x, y) {
+	areaInfo[x][y].mineNum = areaInfo[x][y].mineNum + 1;
 }
 
 void initArea(int len, int col) {
