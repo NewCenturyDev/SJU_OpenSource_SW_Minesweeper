@@ -21,8 +21,6 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define MINE 2
 #define QUERY 3
 
-#define GET_MARK(x, y) ((M(x, y)&12)>>2)
-#define GET_NUM(x, y) ((M(x, y)&240)>>4)
 #define SET_MINE(x, y, s) M(x, y)=s?M(x, y)|1:M(x, y)&254
 #define SET_VISI(x, y, s) M(x, y)=s?M(x, y)|2:M(x, y)&254
 #define SET_MARK(x, y, s) M(x, y)=s&2?s&1?M(x, y)|12:(M(x, y)&243)|8:s&1?M(x, y)&243|4:M(x, y)&243
@@ -57,7 +55,7 @@ int areaMineNum(int x, int y) {
 }
 
 //입력된 좌표가 범위 밖인지 판단
-int isOUT(x, y) {
+int isOut(x, y) {
 	const int OUT = 1; //입력 좌표가 범위 밖임을 나타내는 상수, 정수 1의 값을 가진다.
 	const int IN = 0; //입력 좌표가 범위 안에 있음을 나타내는 상수, 정수 0의 값을 가진다.
 
