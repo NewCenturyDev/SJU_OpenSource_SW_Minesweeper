@@ -21,8 +21,6 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define MINE 2
 #define QUERY 3
 
-#define IS_OUT(x, y) (x>=len||y>=col||x<0||y<0)
-// Out of range or notF
 #define GET_MARK(x, y) ((M(x, y)&12)>>2)
 #define GET_NUM(x, y) ((M(x, y)&240)>>4)
 #define SET_MINE(x, y, s) M(x, y)=s?M(x, y)|1:M(x, y)&254
@@ -56,6 +54,17 @@ int areaMineNum(int x, int y) {
 	int result;
 	result = areaInfo[x][y].mineNum;
 	return result;
+}
+
+//입력된 좌표가 범위 밖인지 판단
+int isOUT(x, y) {
+	const int OUT = 1; //입력 좌표가 범위 밖임을 나타내는 상수, 정수 1의 값을 가진다.
+	const int IN = 0; //입력 좌표가 범위 안에 있음을 나타내는 상수, 정수 0의 값을 가진다.
+
+	if (x >= len || y >= col || x < 0 || y < 0) {
+		return OUT;
+	}
+	return IN;
 }
 
 void initArea(int len, int col) {
