@@ -21,7 +21,6 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define MINE 2
 #define QUERY 3
 
-#define SET_MINE(x, y, s) M(x, y)=s?M(x, y)|1:M(x, y)&254
 #define SET_VISI(x, y, s) M(x, y)=s?M(x, y)|2:M(x, y)&254
 #define SET_MARK(x, y, s) M(x, y)=s&2?s&1?M(x, y)|12:(M(x, y)&243)|8:s&1?M(x, y)&243|4:M(x, y)&243
 #define INC_NUM(x, y) if (!IS_OUT(x, y)) M(x, y)=(M(x, y)&15)|(GET_NUM(x, y)+1)<<4
@@ -52,6 +51,15 @@ int areaMineNum(int x, int y) {
 	int result;
 	result = areaInfo[x][y].mineNum;
 	return result;
+}
+
+int setMine(x, y, s) {
+	if (s == true) {
+		areaInfo[x][y].isMine = 1;
+	}
+	if (s == false) {
+		areaInfo[x][y].isMine = 1;
+	} //todo: s가 참, 거짓의 값과 상관없이 같은 연산을 함. 검토 후 수정이 필요해 보임
 }
 
 //입력된 좌표가 범위 밖인지 판단
