@@ -34,10 +34,17 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define SET_MARK(x, y, s) M(x, y)=s&2?s&1?M(x, y)|12:(M(x, y)&243)|8:s&1?M(x, y)&243|4:M(x, y)&243
 #define INC_NUM(x, y) if (!IS_OUT(x, y)) M(x, y)=(M(x, y)&15)|(GET_NUM(x, y)+1)<<4
 
-//해당 좌표의 지뢰 유무 값 
+//해당 좌표의 지뢰 유무 값 전달
 int isAreaMine(int x, int y) {
 	int result;
 	result = areaInfo[x][y].isMine;
+	return result;
+}
+
+//해당 좌표가 보여지는 상태에 대한 값 전달
+int isAreaVisi(int x, int y) {
+	int result;
+	result = areaInfo[x][y].isVisi;
 	return result;
 }
 
