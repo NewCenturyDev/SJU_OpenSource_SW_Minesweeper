@@ -21,10 +21,6 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define MINE 2
 #define QUERY 3
 
-#define IS_VISI(x, y) (M(x, y)&2)
-// Visible or not
-#define IS_MARK(x, y) (M(x, y)&12)
-#define IS_NUM(x, y) (M(x, y)&240)
 #define IS_OUT(x, y) (x>=len||y>=col||x<0||y<0)
 // Out of range or notF
 #define GET_MARK(x, y) ((M(x, y)&12)>>2)
@@ -52,6 +48,13 @@ int isAreaVisi(int x, int y) {
 int areaMark(int x, int y) {
 	int result;
 	result = areaInfo[x][y].mark;
+	return result;
+}
+
+//해당 칸 주변 지뢰의 수 전달
+int areaMineNum(int x, int y) {
+	int result;
+	result = areaInfo[x][y].mineNum;
 	return result;
 }
 
