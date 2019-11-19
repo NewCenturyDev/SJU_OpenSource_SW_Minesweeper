@@ -16,11 +16,6 @@ AreaInfo **areaInfo; //지뢰판의 정보를 저장할 변수
 char p[] = { ' ', 'O', 'X', '_' };
 // Mark characters
 
-#define NONE 0
-#define SAFE 1
-#define MINE 2
-#define QUERY 3
-
 //해당 좌표의 지뢰 유무 값 전달
 int isAreaMine(int x, int y) {
 	int result;
