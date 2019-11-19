@@ -21,7 +21,6 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define MINE 2
 #define QUERY 3
 
-#define SET_MARK(x, y, s) M(x, y)=s&2?s&1?M(x, y)|12:(M(x, y)&243)|8:s&1?M(x, y)&243|4:M(x, y)&243
 #define INC_NUM(x, y) if (!IS_OUT(x, y)) M(x, y)=(M(x, y)&15)|(GET_NUM(x, y)+1)<<4
 
 //해당 좌표의 지뢰 유무 값 전달
@@ -60,13 +59,34 @@ void setMine(x, y, s) {
 		areaInfo[x][y].isMine = 1;
 	} //todo: s가 참, 거짓의 값과 상관없이 같은 연산을 함. 검토 후 수정이 필요해 보임
 }
-
+ 
+//해당 칸을 볼 수 있는지 아닌지에 대한 값 설정
 void setVisi(x, y, s) {
 	if (s == true) {
 		areaInfo[x][y].isVisi = 1;
 	}
 	if (s == false) {
 		areaInfo[x][y].isMine = 1;
+	}
+}
+
+//마크 값 설정
+void setMark(x, y, s) {
+	if (s == 0 || s == 1) {
+		if (s == 1) {
+			areaInfo[x][y].isMark = 1;
+		}
+		if (s == 0) {
+			areaInfo[x][y].isMark = 0;
+		}
+	}
+	if (s == 2 || s == 3) {
+		if (s == 3) {
+			areaInfo[x][y].isMark = 3;
+		}
+		if (s == 2) {
+			areaInfo[x][y].isMark = 2;
+		}
 	}
 }
 
