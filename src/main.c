@@ -17,35 +17,35 @@ char p[] = { ' ', 'O', 'X', '_' };
 // Mark characters
 
 //해당 좌표의 지뢰 유무 값 전달
-int isAreaMine(int x, int y) {
+int IsMine(int x, int y) {
 	int result;
 	result = areaInfo[x][y].isMine;
 	return result;
 }
 
 //해당 좌표가 보여지는 상태에 대한 값 전달
-int isAreaVisi(int x, int y) {
+int IsVisible(int x, int y) {
 	int result;
 	result = areaInfo[x][y].isVisi;
 	return result;
 }
 
 //해당 좌표의 표식의 값 전달
-int areaMark(int x, int y) {
+int Mark(int x, int y) {
 	int result;
 	result = areaInfo[x][y].mark;
 	return result;
 }
 
 //해당 칸 주변 지뢰의 수 전달
-int areaMineNum(int x, int y) {
+int MineNum(int x, int y) {
 	int result;
 	result = areaInfo[x][y].mineNum;
 	return result;
 }
 
 //입력된 좌표가 범위 밖인지 판단
-int isOut(x, y) {
+int IsOut(x, y) {
 	const int OUT = 1; //입력 좌표가 범위 밖임을 나타내는 상수, 정수 1의 값을 가진다.
 	const int IN = 0; //입력 좌표가 범위 안에 있음을 나타내는 상수, 정수 0의 값을 가진다.
 
@@ -55,27 +55,33 @@ int isOut(x, y) {
 	return IN;
 }
 
-void setMine(x, y, s) {
-	if (s == true) {
+void SetMine(x, y, s) {
+	const int TRUE = 1; //거짓인 상태를 나타낼때 쓰일 상수로, 정수 0의 값을 가진다.
+	const int FALSE = 0;  //갯수가 0일때 쓰일 상수로, 정수 0의 값을 가진다.
+
+	if (s == TRUE) {
 		areaInfo[x][y].isMine = 1;
 	}
-	if (s == false) {
+	if (s == FALSE) {
 		areaInfo[x][y].isMine = 1;
 	} //todo: s가 참, 거짓의 값과 상관없이 같은 연산을 함. 검토 후 수정이 필요해 보임
 }
  
 //해당 칸을 볼 수 있는지 아닌지에 대한 값 설정
-void setVisi(x, y, s) {
-	if (s == true) {
+void SetVisi(x, y, s) {
+	const int TRUE = 1; //거짓인 상태를 나타낼때 쓰일 상수로, 정수 0의 값을 가진다.
+	const int FALSE = 0;  //갯수가 0일때 쓰일 상수로, 정수 0의 값을 가진다.
+
+	if (s == TRUE) {
 		areaInfo[x][y].isVisi = 1;
 	}
-	if (s == false) {
+	if (s == FALSE) {
 		areaInfo[x][y].isMine = 1;
 	}
 }
 
 //마크 값 설정
-void setMark(x, y, s) {
+void SetMark(x, y, s) {
 	if (s == 0 || s == 1) {
 		if (s == 1) {
 			areaInfo[x][y].isMark = 1;
@@ -94,11 +100,11 @@ void setMark(x, y, s) {
 	}
 }
 
-void incNum(x, y) {
+void IncNum(x, y) {
 	areaInfo[x][y].mineNum = areaInfo[x][y].mineNum + 1;
 }
 
-void initArea(int len, int col) {
+void InitArea(int len, int col) {
 	/*
 	기능: 지뢰판을 이차원 배열로 할당하고 초기화가 필요한 구조체 멤버들을 초기화한다.
 	파라미터 : len은 지뢰판의 행의 수를 col은 지뢰판의 열의 수를 나타낸다.
