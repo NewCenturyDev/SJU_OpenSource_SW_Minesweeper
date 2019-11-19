@@ -48,6 +48,13 @@ int isAreaVisi(int x, int y) {
 	return result;
 }
 
+//해당 좌표의 표식의 값 전달
+int areaMark(int x, int y) {
+	int result;
+	result = areaInfo[x][y].mark;
+	return result;
+}
+
 void initArea(int len, int col) {
 	/*
 	기능: 지뢰판을 이차원 배열로 할당하고 초기화가 필요한 구조체 멤버들을 초기화한다.
