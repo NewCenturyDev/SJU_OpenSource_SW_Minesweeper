@@ -55,16 +55,8 @@ int IsOut(x, y) {
 	return IN;
 }
 
-void SetMine(x, y, s) {
-	const int TRUE = 1; //거짓인 상태를 나타낼때 쓰일 상수로, 정수 0의 값을 가진다.
-	const int FALSE = 0;  //갯수가 0일때 쓰일 상수로, 정수 0의 값을 가진다.
-
-	if (s == TRUE) {
+void SetMine(x, y) {
 		areaInfo[x][y].isMine = 1;
-	}
-	if (s == FALSE) {
-		areaInfo[x][y].isMine = 1;
-	} //todo: s가 참, 거짓의 값과 상관없이 같은 연산을 함. 검토 후 수정이 필요해 보임
 }
  
 //해당 칸을 볼 수 있는지 아닌지에 대한 값 설정
