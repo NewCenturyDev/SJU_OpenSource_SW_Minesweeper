@@ -82,21 +82,26 @@ void SetVisi(x, y, s) {
 
 //마크 값 설정
 void SetMark(x, y, s) {
-	if (s == 0 || s == 1) {
-		if (s == 1) {
-			areaInfo[x][y].isMark = 1;
-		}
-		if (s == 0) {
+	switch (s) {
+		case 0 :
 			areaInfo[x][y].isMark = 0;
-		}
-	}
-	if (s == 2 || s == 3) {
-		if (s == 3) {
-			areaInfo[x][y].isMark = 3;
-		}
-		if (s == 2) {
+			break;
+
+		case 1 :
+			areaInfo[x][y].isMark = 1;
+			break;
+
+		case 2 :
 			areaInfo[x][y].isMark = 2;
-		}
+			break;
+
+		case 3 :
+			areaInfo[x][y].isMark = 3;
+			break;
+
+		default :
+			return;
+
 	}
 }
 
