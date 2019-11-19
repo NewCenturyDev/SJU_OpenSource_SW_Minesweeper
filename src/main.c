@@ -21,8 +21,6 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define MINE 2
 #define QUERY 3
 
-#define M(x, y) m[(x)*col+(y)]
-#define IS_MINE(x, y) (M(x, y)&1)
 #define IS_VISI(x, y) (M(x, y)&2)
 // Visible or not
 #define IS_MARK(x, y) (M(x, y)&12)
@@ -35,6 +33,13 @@ char p[] = { ' ', 'O', 'X', '_' };
 #define SET_VISI(x, y, s) M(x, y)=s?M(x, y)|2:M(x, y)&254
 #define SET_MARK(x, y, s) M(x, y)=s&2?s&1?M(x, y)|12:(M(x, y)&243)|8:s&1?M(x, y)&243|4:M(x, y)&243
 #define INC_NUM(x, y) if (!IS_OUT(x, y)) M(x, y)=(M(x, y)&15)|(GET_NUM(x, y)+1)<<4
+
+//해당 좌표의 지뢰 유무 값 
+int isAreaMine(int x, int y) {
+	int result;
+	result = areaInfo[x][y].isMine;
+	return result;
+}
 
 void initArea(int len, int col) {
 	/*
@@ -50,9 +55,9 @@ void initArea(int len, int col) {
 	areaInfo = (AreaInfo **)malloc(len * sizeof(AreaInfo *));
 
 	for (i = 0;i < len;i++) {
-		for (j = 0;j < col;j++) {
-			areaInfo[i] = (AreaInfo *)malloc(col * sizeof(AreaInfo));
+		areaInfo[i] = (AreaInfo *)malloc(col * sizeof(AreaInfo));
 
+		for (j = 0;j < col;j++) {
 			//구조체 배열의 멤버 값을 초기화한다.
 			areaInfo[i][j].isMine = FALSE;
 			areaInfo[i][j].isVisible = FALSE;
