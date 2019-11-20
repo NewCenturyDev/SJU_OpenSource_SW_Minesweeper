@@ -16,27 +16,92 @@ AreaInfo **areaInfo; //지뢰판의 정보를 저장할 변수
 char p[] = { ' ', 'O', 'X', '_' };
 // Mark characters
 
-#define NONE 0
-#define SAFE 1
-#define MINE 2
-#define QUERY 3
+//해당 좌표의 지뢰 유무 값 전달
+int IsMine(int x, int y) {
+	int result;
+	result = areaInfo[x][y].isMine;
+	return result;
+}
 
-#define M(x, y) m[(x)*col+(y)]
-#define IS_MINE(x, y) (M(x, y)&1)
-#define IS_VISI(x, y) (M(x, y)&2)
-// Visible or not
-#define IS_MARK(x, y) (M(x, y)&12)
-#define IS_NUM(x, y) (M(x, y)&240)
-#define IS_OUT(x, y) (x>=len||y>=col||x<0||y<0)
-// Out of range or notF
-#define GET_MARK(x, y) ((M(x, y)&12)>>2)
-#define GET_NUM(x, y) ((M(x, y)&240)>>4)
-#define SET_MINE(x, y, s) M(x, y)=s?M(x, y)|1:M(x, y)&254
-#define SET_VISI(x, y, s) M(x, y)=s?M(x, y)|2:M(x, y)&254
-#define SET_MARK(x, y, s) M(x, y)=s&2?s&1?M(x, y)|12:(M(x, y)&243)|8:s&1?M(x, y)&243|4:M(x, y)&243
-#define INC_NUM(x, y) if (!IS_OUT(x, y)) M(x, y)=(M(x, y)&15)|(GET_NUM(x, y)+1)<<4
+//해당 좌표가 보여지는 상태에 대한 값 전달
+int IsVisible(int x, int y) {
+	int result;
+	result = areaInfo[x][y].isVisi;
+	return result;
+}
 
-void initArea(int len, int col) {
+//해당 좌표의 표식의 값 전달
+int Mark(int x, int y) {
+	int result;
+	result = areaInfo[x][y].mark;
+	return result;
+}
+
+//해당 칸 주변 지뢰의 수 전달
+int MineNum(int x, int y) {
+	int result;
+	result = areaInfo[x][y].mineNum;
+	return result;
+}
+
+//입력된 좌표가 범위 밖인지 판단
+int IsOut(x, y) {
+	const int OUT = 1; //입력 좌표가 범위 밖임을 나타내는 상수, 정수 1의 값을 가진다.
+	const int IN = 0; //입력 좌표가 범위 안에 있음을 나타내는 상수, 정수 0의 값을 가진다.
+
+	if (x >= len || y >= col || x < 0 || y < 0) {
+		return OUT;
+	}
+	return IN;
+}
+
+void SetMine(x, y) {
+		areaInfo[x][y].isMine = 1;
+}
+ 
+//해당 칸을 볼 수 있는지 아닌지에 대한 값 설정
+void SetVisi(x, y, s) {
+	const int TRUE = 1; //거짓인 상태를 나타낼때 쓰일 상수로, 정수 0의 값을 가진다.
+	const int FALSE = 0;  //갯수가 0일때 쓰일 상수로, 정수 0의 값을 가진다.
+
+	if (s == TRUE) {
+		areaInfo[x][y].isVisi = 1;
+	}
+	if (s == FALSE) {
+		areaInfo[x][y].isMine = 1;
+	}
+}
+
+//마크 값 설정
+void SetMark(x, y, s) {
+	switch (s) {
+		case 0 :
+			areaInfo[x][y].isMark = 0;
+			break;
+
+		case 1 :
+			areaInfo[x][y].isMark = 1;
+			break;
+
+		case 2 :
+			areaInfo[x][y].isMark = 2;
+			break;
+
+		case 3 :
+			areaInfo[x][y].isMark = 3;
+			break;
+
+		default :
+			return;
+
+	}
+}
+
+void IncNum(x, y) {
+	areaInfo[x][y].mineNum = areaInfo[x][y].mineNum + 1;
+}
+
+void InitArea(int len, int col) {
 	/*
 	기능: 지뢰판을 이차원 배열로 할당하고 초기화가 필요한 구조체 멤버들을 초기화한다.
 	파라미터 : len은 지뢰판의 행의 수를 col은 지뢰판의 열의 수를 나타낸다.
@@ -50,9 +115,9 @@ void initArea(int len, int col) {
 	areaInfo = (AreaInfo **)malloc(len * sizeof(AreaInfo *));
 
 	for (i = 0;i < len;i++) {
-		for (j = 0;j < col;j++) {
-			areaInfo[i] = (AreaInfo *)malloc(col * sizeof(AreaInfo));
+		areaInfo[i] = (AreaInfo *)malloc(col * sizeof(AreaInfo));
 
+		for (j = 0;j < col;j++) {
 			//구조체 배열의 멤버 값을 초기화한다.
 			areaInfo[i][j].isMine = FALSE;
 			areaInfo[i][j].isVisible = FALSE;
