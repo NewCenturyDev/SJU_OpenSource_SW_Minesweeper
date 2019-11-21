@@ -184,7 +184,8 @@ void print(int c) {
 		printf("WARNING: CHAETING DETECTED\n");
 }
 
-void clear(void) {
+void Gameover(void) { // 전 맵을 보여주는 clear 함수의 이름을 Gameover로 수정  (함수 이름의 직관화)
+	// clear라는 함수 이름이 맵을 다 보여주는 건지, 깨끗하게 하는 건지에 대해 혼동될 여지가 있었음.
 	for (int i = 0; i < len*col; ++i)
 		m[i] |= 2;
 }
