@@ -17,8 +17,7 @@ typedef struct SetInfo { // 게임 시작시에 설정하는 맵의 길이, 높�
 	int seed;         // 시드를 저장하는 변수
 }SetInfo;
 
-// Length，Column，Mines, Seed, Visible Grid, Initialized or not
-AreaInfo **areaInfo; //지뢰판의 정보를 저장할 변수
+AreaInfo **areaInfo = NULL; //지뢰판의 정보를 저장할 변수
 // Mark characters
 
 //해당 좌표의 지뢰 유무 값 전달
@@ -106,7 +105,7 @@ void IncNum(int x, int y) {
 	areaInfo[x][y].mineNum = areaInfo[x][y].mineNum + 1;
 }
 
-void InitArea(SetInfo setInfo) {
+int InitArea(SetInfo setInfo) {
 	/*
 	기능: 지뢰판을 이차원 배열로 할당하고 초기화가 필요한 구조체 멤버들을 초기화한다.
 	파라미터 : len은 지뢰판의 행의 수를 col은 지뢰판의 열의 수를 나타낸다.
@@ -118,9 +117,17 @@ void InitArea(SetInfo setInfo) {
 
 	//변수 areaInfo에 이차원 배열을 할당한다.
 	areaInfo = (AreaInfo **)malloc(setInfo.len * sizeof(AreaInfo *));
+	if (areaInfo == NULL) {
+		printf("Not enough memory!");
+		return -1;
+	}
 
 	for (i = 0; i < setInfo.len; i++) {
 		areaInfo[i] = (AreaInfo *)malloc(setInfo.col * sizeof(AreaInfo));
+		if (areaInfo[i] == NULL) {
+			printf("Not enough memory!");
+			return -1;
+		}
 
 		for (j = 0; j < setInfo.col; j++) {
 			//구조체 배열의 멤버 값을 초기화한다.
@@ -130,7 +137,7 @@ void InitArea(SetInfo setInfo) {
 		}
 	}
 
-	return;
+	return 0;
 }
 
 void bfs(int x, int y, int *visi) {
@@ -206,7 +213,7 @@ int input(int *visi, int *init, SetInfo setInfo) {	//사용자의 입력, 입력
 
 	//입력값 검증 (좌표값 범위 검사)
 	if (IS_OUT(x, y)) {
-		print(0,setInfo);
+		print(0, setInfo);
 		printf("Invaild Command: Out of range\n");
 		return 0;	//게임 계속 진행
 	}
@@ -238,22 +245,22 @@ int input(int *visi, int *init, SetInfo setInfo) {	//사용자의 입력, 입력
 	//명령어 검사 및 분기처리
 	if (s) {
 		if (s == (-1)*(setInfo.seed)) {	//-seed 값을 명령어로 입력할 경우 치트 동작
-			print(1,setInfo);
+			print(1, setInfo);
 		}
 		else if (s <= 4 && s > 0) {
 			//해당 좌표에 메모하는 명령(1,2,3,4)를 입력했을 경우
 			if (!IS_VISI(x, y))
 				SET_MARK(x, y, s - 1);
 			else {
-				print(0,setInfo);
+				print(0, setInfo);
 				printf("Invaild Command: Already visible\n");
 				return 0;	//게임 계속 진행
 			}
-			print(0,setInfo);
+			print(0, setInfo);
 		}
 		else {
 			//잘못된 명령어를 입력했을 경우
-			print(0,setInfo);
+			print(0, setInfo);
 			printf("Invaild Command: Command does not exist\n");
 		}
 	}
@@ -263,17 +270,17 @@ int input(int *visi, int *init, SetInfo setInfo) {	//사용자의 입력, 입력
 		if (IS_MINE(x, y)) {	//지뢰 밟았을 경우 패배 처리
 			printf("You have lost\n");
 			clear();
-			print(0,setInfo);
+			print(0, setInfo);
 			return 1;	//패배
 		}
 		bfs(x, y);
-		print(0,setInfo);
+		print(0, setInfo);
 	}
 	if (*visi == (setInfo.len) * (setInfo.col) - (setInfo.num)) {	//남은 지뢰 갯수 검사
 		//다 찾았을 경우 승리 처리
 		printf("You win\n");
 		Gameover(setInfo);
-		print(0,setInfo);
+		print(0, setInfo);
 		return 2;	//승리
 	}
 	return 0;	//게임 계속 진행
@@ -282,10 +289,11 @@ int input(int *visi, int *init, SetInfo setInfo) {	//사용자의 입력, 입력
 int main(int argc, char **argv) {
 
 	SetInfo setInfo;
+	int i, j = 0;
 	int visi = 0;
 	int init = 0;
 
-	
+
 	if (argc > 3) {
 		printf("Getting information from argument\n");
 		setInfo.len = atoi(argv[1]);
@@ -309,5 +317,11 @@ int main(int argc, char **argv) {
 	printf("Seed：%d\n", setInfo.seed);
 	initArea(setInfo);
 	print(0, setInfo);
-	for (; !input(&visi, &init, setInfo) ;);
+	for (; !input(&visi, &init, setInfo););
+
+	for (i = 0; i < setInfo.len; i++) {
+		free(areaInfo[i]);
+	}
+
+	free(areaInfo);
 }
