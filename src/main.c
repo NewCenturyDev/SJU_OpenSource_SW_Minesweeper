@@ -10,7 +10,7 @@ typedef struct AreaInfo { //지뢰판의 구역의 정보를 다루는 구조체
 	int mineNum;      //해당 칸의 주변 지뢰의 수를 저장하는 변수
 }AreaInfo;
 
-int len, col, num, seed, visi = 0, init = 0;
+int len, col, num, seed;
 // Length，Column，Mines, Seed, Visible Grid, Initialized or not
 AreaInfo **areaInfo; //지뢰판의 정보를 저장할 변수
 char p[] = { ' ', 'O', 'X', '_' };
@@ -56,9 +56,9 @@ int IsOut(x, y) {
 }
 
 void SetMine(x, y) {
-		areaInfo[x][y].isMine = 1;
+	areaInfo[x][y].isMine = 1;
 }
- 
+
 //해당 칸을 볼 수 있는지 아닌지에 대한 값 설정
 void SetVisi(x, y, s) {
 	const int TRUE = 1; //거짓인 상태를 나타낼때 쓰일 상수로, 정수 0의 값을 가진다.
@@ -75,24 +75,24 @@ void SetVisi(x, y, s) {
 //마크 값 설정
 void SetMark(x, y, s) {
 	switch (s) {
-		case 0 :
-			areaInfo[x][y].isMark = 0;
-			break;
+	case 0:
+		areaInfo[x][y].isMark = 0;
+		break;
 
-		case 1 :
-			areaInfo[x][y].isMark = 1;
-			break;
+	case 1:
+		areaInfo[x][y].isMark = 1;
+		break;
 
-		case 2 :
-			areaInfo[x][y].isMark = 2;
-			break;
+	case 2:
+		areaInfo[x][y].isMark = 2;
+		break;
 
-		case 3 :
-			areaInfo[x][y].isMark = 3;
-			break;
+	case 3:
+		areaInfo[x][y].isMark = 3;
+		break;
 
-		default :
-			return;
+	default:
+		return;
 
 	}
 }
@@ -114,10 +114,10 @@ void InitArea(int len, int col) {
 	//변수 areaInfo에 이차원 배열을 할당한다.
 	areaInfo = (AreaInfo **)malloc(len * sizeof(AreaInfo *));
 
-	for (i = 0;i < len;i++) {
+	for (i = 0; i < len; i++) {
 		areaInfo[i] = (AreaInfo *)malloc(col * sizeof(AreaInfo));
 
-		for (j = 0;j < col;j++) {
+		for (j = 0; j < col; j++) {
 			//구조체 배열의 멤버 값을 초기화한다.
 			areaInfo[i][j].isMine = FALSE;
 			areaInfo[i][j].isVisible = FALSE;
@@ -128,10 +128,10 @@ void InitArea(int len, int col) {
 	return;
 }
 
-void bfs(int x, int y) {
+void bfs(int x, int y, int *visi) {
 	if (IS_OUT(x, y) || IS_VISI(x, y))
 		return;
-	++visi;
+	++(*visi);
 	SET_VISI(x, y, 1);
 	if (!GET_NUM(x, y)) {
 		bfs(x - 1, y - 1);
@@ -139,8 +139,8 @@ void bfs(int x, int y) {
 		bfs(x - 1, y + 1);
 		bfs(x, y - 1);
 		bfs(x, y + 1);
-		bfs(x + 1, y - 1);수
-		bfs(x + 1, y);
+		bfs(x + 1, y - 1);
+			bfs(x + 1, y);
 		bfs(x + 1, y + 1);
 	}
 }
@@ -190,7 +190,7 @@ void Gameover(void) { // 전 맵을 보여주는 clear 함수의 이름을 Gameo
 		m[i] |= 2;
 }
 
-int input(void) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
+int input(int *visi, int *init) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
 	//TODO: 함수 기능 세분화(하나의 함수가 하나의 기능만 하도록 하기) 하기.
 	int x, y, s;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
 
@@ -206,7 +206,7 @@ int input(void) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 
 	}
 
 	//게임판 초기화
-	if (!init) {
+	if (!(*init)) {
 		for (int i = 0, a, b; i < num; ++i) {
 			//반복해서 랜덤한 (a, b) 좌표 생성
 			a = rand() % len;
@@ -226,7 +226,7 @@ int input(void) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 
 				INC_NUM(a + 1, b + 1);
 			}
 		}
-		init = 1;	//초기화 완료
+		*init = 1;	//초기화 완료
 	}
 
 	//명령어 검사 및 분기처리
@@ -263,7 +263,7 @@ int input(void) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 
 		bfs(x, y);
 		print(0);
 	}
-	if (visi == len * col - num) {	//남은 지뢰 갯수 검사
+	if (*visi== len * col - num) {	//남은 지뢰 갯수 검사
 		//다 찾았을 경우 승리 처리
 		printf("You win\n");
 		clear();
@@ -274,6 +274,10 @@ int input(void) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 
 }
 
 int main(int argc, char **argv) {
+
+	int init = 0;
+	int visi = 0;
+
 	if (argc > 3) {
 		printf("Getting information from argument\n");
 		len = atoi(argv[1]);
@@ -296,5 +300,6 @@ int main(int argc, char **argv) {
 	printf("Seed：%d\n", seed);
 	initArea(len, col);
 	print(0);
-	for (; !input(););
+	for (; !input(&visi, &input) ;);
 }
+
