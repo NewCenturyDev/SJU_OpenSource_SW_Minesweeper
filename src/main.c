@@ -21,28 +21,28 @@ AreaInfo **areaInfo = NULL; //지뢰판의 정보를 저장할 변수
 // Mark characters
 
 //해당 좌표의 지뢰 유무 값 전달
-int IsMine(int x, int y) {
+int IsMine(int x, int y, AreaInfo **areaInfo) {
 	int result;
 	result = areaInfo[x][y].isMine;
 	return result;
 }
 
 //해당 좌표가 보여지는 상태에 대한 값 전달
-int IsVisible(int x, int y) {
+int IsVisible(int x, int y, AreaInfo **areaInfo) {
 	int result;
-	result = areaInfo[x][y].isVisi;
+	result = areaInfo[x][y].isVisible;
 	return result;
 }
 
 //해당 좌표의 표식의 값 전달
-int Mark(int x, int y) {
+int Mark(int x, int y, AreaInfo **areaInfo) {
 	int result;
 	result = areaInfo[x][y].mark;
 	return result;
 }
 
 //해당 칸 주변 지뢰의 수 전달
-int MineNum(int x, int y) {
+int MineNum(int x, int y, AreaInfo **areaInfo) {
 	int result;
 	result = areaInfo[x][y].mineNum;
 	return result;
@@ -59,17 +59,17 @@ int IsOut(int x, int y, SetInfo setInfo) {
 	return IN;
 }
 
-void SetMine(int x, int y) {
+void SetMine(int x, int y, AreaInfo **areaInfo) {
 	areaInfo[x][y].isMine = 1;
 }
 
 //해당 칸을 볼 수 있는지 아닌지에 대한 값 설정
-void SetVisi(int x, int y, int s) {
+void SetVisi(int x, int y, int s, AreaInfo **areaInfo) {
 	const int TRUE = 1; //거짓인 상태를 나타낼때 쓰일 상수로, 정수 0의 값을 가진다.
 	const int FALSE = 0;  //갯수가 0일때 쓰일 상수로, 정수 0의 값을 가진다.
 
 	if (s == TRUE) {
-		areaInfo[x][y].isVisi = 1;
+		areaInfo[x][y].isVisible = 1;
 	}
 	if (s == FALSE) {
 		areaInfo[x][y].isMine = 1;
@@ -77,22 +77,22 @@ void SetVisi(int x, int y, int s) {
 }
 
 //마크 값 설정
-void SetMark(int x, int y, int s) {
+void SetMark(int x, int y, int s, AreaInfo **areaInfo) {
 	switch (s) {
 	case 0:
-		areaInfo[x][y].isMark = 0;
+		areaInfo[x][y].mark = 0;
 		break;
 
 	case 1:
-		areaInfo[x][y].isMark = 1;
+		areaInfo[x][y].mark = 1;
 		break;
 
 	case 2:
-		areaInfo[x][y].isMark = 2;
+		areaInfo[x][y].mark = 2;
 		break;
 
 	case 3:
-		areaInfo[x][y].isMark = 3;
+		areaInfo[x][y].mark = 3;
 		break;
 
 	default:
@@ -101,11 +101,11 @@ void SetMark(int x, int y, int s) {
 	}
 }
 
-void IncNum(int x, int y) {
+void IncNum(int x, int y, AreaInfo **areaInfo) {
 	areaInfo[x][y].mineNum = areaInfo[x][y].mineNum + 1;
 }
 
-int InitArea(SetInfo setInfo) {
+AreaInfo **InitArea(SetInfo setInfo) {
 	/*
 	기능: 지뢰판을 이차원 배열로 할당하고 초기화가 필요한 구조체 멤버들을 초기화한다.
 	파라미터 : len은 지뢰판의 행의 수를 col은 지뢰판의 열의 수를 나타낸다.
@@ -117,13 +117,13 @@ int InitArea(SetInfo setInfo) {
 
 	//변수 areaInfo에 이차원 배열을 할당한다.
 	areaInfo = (AreaInfo **)malloc(setInfo.len * sizeof(AreaInfo *));
-	if (areaInfo == NULL) {
+	if (areaInfo == NULL) { // 동적 할당에 실패한 경우 아래 문구와 함께 종료된다.
 		printf("Not enough memory!");
 		return -1;
 	}
 
 	for (i = 0; i < setInfo.len; i++) {
-		areaInfo[i] = (AreaInfo *)malloc(setInfo.col * sizeof(AreaInfo));
+		areaInfo[i] = (AreaInfo *)malloc(setInfo.col * sizeof(AreaInfo)); // 동적 할당에 실패한 경우 아래 문구와 함께 종료된다.
 		if (areaInfo[i] == NULL) {
 			printf("Not enough memory!");
 			return -1;
@@ -137,7 +137,7 @@ int InitArea(SetInfo setInfo) {
 		}
 	}
 
-	return 0;
+	return areaInfo;
 }
 
 void bfs(int x, int y, int *visi) {
@@ -198,9 +198,14 @@ void print(int c, SetInfo setInfo) {
 		printf("WARNING: CHAETING DETECTED\n");
 }
 
-void Gameover(SetInfo setInfo) {
-	for (int i = 0; i < (setInfo.len)*(setInfo.col); ++i)
-		m[i] |= 2;
+void Gameover(SetInfo setInfo, AreaInfo **areaInfo) {
+	int i, j;
+	for (i = 0; i < setInfo.len; ++i) {
+		for (j = 0; j < (setInfo.col); j++) {
+			areaInfo[i][j].isVisible = 1;
+ 
+		}
+	}
 }
 
 int input(int *visi, int *init, SetInfo setInfo) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
@@ -269,7 +274,7 @@ int input(int *visi, int *init, SetInfo setInfo) {	//사용자의 입력, 입력
 		SET_MARK(x, y, 0);
 		if (IS_MINE(x, y)) {	//지뢰 밟았을 경우 패배 처리
 			printf("You have lost\n");
-			clear();
+			Gameover(setInfo, areaInfo);
 			print(0, setInfo);
 			return 1;	//패배
 		}
@@ -279,14 +284,14 @@ int input(int *visi, int *init, SetInfo setInfo) {	//사용자의 입력, 입력
 	if (*visi == (setInfo.len) * (setInfo.col) - (setInfo.num)) {	//남은 지뢰 갯수 검사
 		//다 찾았을 경우 승리 처리
 		printf("You win\n");
-		Gameover(setInfo);
+		Gameover(setInfo,areaInfo);
 		print(0, setInfo);
 		return 2;	//승리
 	}
 	return 0;	//게임 계속 진행
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv, AreaInfo **areaInfo) {
 
 	SetInfo setInfo;
 	int i, j = 0;
