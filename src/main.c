@@ -1,5 +1,6 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <time.h>
 
@@ -29,11 +30,6 @@ typedef struct StackNode { //스택 구조를 사용하기 위한 구조체
 }StackNode;
 
 /* 전역 변수 선언 */
-//부울 연산과 정수 연산을 시각적으로 구분하기 위한 상수
-//코드 여러 군데에서 빈번하게 사용되기 때문에 전역 변수로 선언하였습니다
-//C 문법만 사용 옵션(C++ 문법 제외)을 넣은 Visual Studio 상에서 true, false, bool, boolean 키워드가 작동하지 않아 선언했습니다.
-const int TRUE = 1;	//참인 상태를 나타낼때 쓰일 상수로, 정수 1의 값을 가진다.
-const int FALSE = 0;	//거짓인 상태를 나타낼때 쓰일 상수로, 정수 0의 값을 가진다.
 AreaInfo **areaInfo = NULL; //지뢰판의 정보를 저장할 변수
 
 /* 함수 원형 선언 */
@@ -67,29 +63,25 @@ int MineNum(Position pos) {
 	return result;
 }
 
-int IsOut(Position pos, InitialSetting initSet) {
+bool IsOut(Position pos, InitialSetting initSet) {
 	//입력된 좌표가 범위 밖인지 판단하는 함수
-	const int OUT = 1; //입력 좌표가 범위 밖임을 나타내는 상수, 정수 1의 값을 가진다.
-	const int IN = 0; //입력 좌표가 범위 안에 있음을 나타내는 상수, 정수 0의 값을 가진다.
-
-	if (pos.x >= initSet.width || pos.y >= initSet.height || pos.x < 0 || pos.y < 0) {
-		return OUT;
-	}
-	return IN;
+	if (pos.x >= initSet.width || pos.y >= initSet.height || pos.x < 0 || pos.y < 0)
+		return true;
+	return false;
 }
 
 void SetMine(Position pos) {
-	areaInfo[pos.x][pos.y].isMine = 1;
+	areaInfo[pos.x][pos.y].isMine = true;
 	return;
 }
 
 void SetVisible(Position pos, int visibility) {
 	//해당 칸의 볼 수 있음 여부를 갱신하는 함수
-	if (visibility == TRUE) {
-		areaInfo[pos.x][pos.y].isVisible = 1;
+	if (visibility == true) {
+		areaInfo[pos.x][pos.y].isVisible = true;
 	}
-	if (visibility == FALSE) {
-		areaInfo[pos.x][pos.y].isVisible = 0;
+	if (visibility == false) {
+		areaInfo[pos.x][pos.y].isVisible = false;
 	}
 	return;
 }
@@ -158,8 +150,8 @@ void AllocNInitVar(InitialSetting initSet) {
 	//구조체 배열의 멤버 값을 초기화한다.
 	for (i = 0; i < initSet.width; i++) {
 		for (j = 0; j < initSet.height; j++) {
-			areaInfo[i][j].isMine = FALSE;
-			areaInfo[i][j].isVisible = FALSE;
+			areaInfo[i][j].isMine = false;
+			areaInfo[i][j].isVisible = false;
 			areaInfo[i][j].mark = ZERO;
 			areaInfo[i][j].mineNum = ZERO;
 		}
@@ -210,9 +202,9 @@ int IsEmptyStack(StackNode *stack) {
 	//스택이 비어있는지 확인하는 함수
 	if (stack == NULL)
 		//스택이 비어있다면 TRUE를 리턴
-		return TRUE;
+		return true;
 	//스택이 비어있지않다면 FALSE를 리턴
-	return FALSE;
+	return false;
 }
 
 void SetAdjecantPosition(Position *adjPos, Position pos) {
@@ -372,7 +364,7 @@ void Initialize(InitialSetting initSet, int* init, Position inputPos) {
 			IncNum(randPos.x + 1, randPos.y + 1, initSet);
 		}
 	}
-	*init = TRUE;
+	*init = true;
 	return;
 }
 
@@ -474,7 +466,7 @@ int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleArea
 
 int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
 	Position inputPos;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
-	int command;
+	int command;	//사용자가 입력한 명령어
 	int gameResult = 0;	//게임 승패 여부를 저장 (0 = 게임진행중 / 1 = 게임패배 / 2 = 게임승리)
 
 	//사용자 입력 처리
@@ -489,14 +481,14 @@ int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	/
 	}
 
 	//게임판 초기화
-	if (*init != TRUE)
+	if (*init != true)
 		Initialize(initSet, init, inputPos);
 
 	//명령어 검사 및 분기처리
 	gameResult = SwitchingCommand(initSet, inputPos, visibleAreaCnt, command);
 	if (gameResult != 0)
 		return gameResult;
-	
+
 	//지뢰를 전부 찾았는지 검사
 	gameResult = CheckUnSearchedMines(initSet, visibleAreaCnt);
 	return gameResult;	//계속 진행 또는 승리
@@ -511,93 +503,118 @@ void MemoryUnallocate(InitialSetting initSet) {
 	return;
 }
 
-int main(int argc, char **argv) {
-	InitialSetting initSet;
-	int visibleAreaCnt = 0;	//밝혀진 지뢰의 숫자를 0으로 초기화한다
-	int isInitialized = FALSE;	//아직 지뢰판 초기화가 되지 않았으므로 초기화 여부를 FALSE로 설정한다
-	int isWrongInput = FALSE;	//잘못된 초기조건 입력 예외처리 플래그 (TRUE == 예외 발생 / FALSE == 정상 진행)
-	int gameResult = 0;	//게임 승패 여부를 저장 (0 = 게임진행중 / 1 = 게임패배 / 2 = 게임승리)
+void GetInitSetFromInput(InitialSetting *initSet) {
 	double width, height, num, seed;	//잘못된 입력이 주어질 때 프로그램이 정지하지 않도록 입력을 임시로 받아줄 변수
+	//초기조건 사용자 입력 처리 함수
+	printf("Enter width, height, mineage, and seed(random seeds fill in -1)\n");
+	scanf("%lf %lf %lf %lf", &width, &height, &num, &seed); // 정수형이 아닌 실수형으로 입력받습니다.
+	initSet->width = (int)width; // 실수를 입력받은 경우, int로 형 변환하여 initSet.width에 저장
+	initSet->height = (int)height; // 실수를 입력받은 경우, int로 형 변환하여 initSet.height에 저장
+	initSet->num = (int)num; // 실수를 입력받은 경우, int로 형 변환하여 initSet.num에 저장
+	initSet->seed = (int)seed; // 실수를 입력받은 경우, int로 형 변환하여 initSet.seed에 저장
+	return;
+}
 
-	if (argc > 3) {
-		//프로그램 실행 전 옵션으로 인자를 같이 주었다면 해당 인자로 초기조건 설정
-		printf("Getting information from argument\n");
-		initSet.width = atoi(argv[1]);
-		initSet.height = atoi(argv[2]);
-		initSet.num = atoi(argv[3]);
-		if (argc > 4)
-			initSet.seed = atoi(argv[4]);
-		else initSet.seed = (int)time(NULL);
-	}
-	else {
-		//초기 조건 사용자 입력 처리
-		printf("Enter width, height, mineage, and seed(random seeds fill in -1)\n");
-		scanf("%lf %lf %lf %lf", &width, &height, &num, &seed); // 정수형이 아닌 실수형으로 입력받습니다.
+void MineFieldSizeException(InitialSetting *initSet) {
+	// 초기조건 입력 오류시 예외처리 코드 (width, height값)
+	int isWrongInput = false;	//잘못된 초기조건 입력 예외처리 플래그 (TRUE == 예외 발생 / FALSE == 정상 진행)
 
-		initSet.width = (int)width; // 실수를 입력받은 경우, int로 형 변환하여 initSet.width에 저장
-		initSet.height = (int)height; // 실수를 입력받은 경우, int로 형 변환하여 initSet.height에 저장
-		initSet.num = (int)num; // 실수를 입력받은 경우, int로 형 변환하여 initSet.num에 저장
-		initSet.seed = (int)seed; // 실수를 입력받은 경우, int로 형 변환하여 initSet.seed에 저장
+	do {
+		if (initSet->width < 1 || initSet->height < 1)
+			//지뢰판의 가로 및 세로 길이가 음수로 입력된 경우
+			isWrongInput = true;
+		else if (initSet->width > 99 || initSet->height > 99)
+			//지뢰판의 가로 및 세로 길이가 100 이상으로 너무 크게 입력된 경우
+			isWrongInput = true;
+		else
+			//지뢰판의 가로 및 세로 길이가 정상 입력된 경우
+			isWrongInput = false;
+		if (isWrongInput) {
+			//잘못된 입력이 주어지면 다시 입력을 요구합니다
+			printf("[ERROR]width and height must be in range 1~99. Try again.\n");
+			GetInitSetFromInput(initSet);
+		}
+	} while (isWrongInput);
+	return;
+}
 
-		do {
-			// 초기조건 입력 오류시 예외처리 코드 (width, height값)
-			if (initSet.width < 1 || initSet.height < 1)	
-				//지뢰판의 가로 및 세로 길이가 음수로 입력된 경우
-				isWrongInput = TRUE;
-			else if (initSet.width > 99 || initSet.height > 99)
-				//지뢰판의 가로 및 세로 길이가 100 이상으로 너무 크게 입력된 경우
-				isWrongInput = TRUE;
-			else
-				//지뢰판의 가로 및 세로 길이가 정상 입력된 경우
-				isWrongInput = FALSE;
-			if (isWrongInput) {
-				//잘못된 입력이 주어지면 다시 입력을 요구합니다
-				printf("[ERROR]width and height must be in range 1~99. Try again.\n");
-				printf("Enter width, height, mineage, and seed again(random seeds fill in -1)\n");
-				scanf("%lf %lf %lf %lf", &width, &height, &num, &seed);
-				// 처음에 입력받고 저장하는 로직과 동일
-				initSet.width = (int)width;
-				initSet.height = (int)height;
-				initSet.num = (int)num;
-				initSet.seed = (int)seed;
-			}
-		} while (isWrongInput);
-		do {
-			//초기조건 입력 오류시 예외처리 코드(num값)
-			if (initSet.num >= initSet.width * initSet.height)
-				//지뢰 갯수가 지뢰판 크기와 같거나 더 크게 입력된 경우
-				isWrongInput = TRUE;
-			else if (initSet.num <= 0)
-				//지뢰 갯수가 0개 또는 음수로 입력된 경우
-				isWrongInput = TRUE;
-			else
-				//지뢰 갯수가 정상 입력된 경우
-				isWrongInput = FALSE;
-			if (isWrongInput) {
-				//잘못된 입력이 주어지면 다시 입력을 요구합니다.
-				printf("[ERROR]The number of mines must be in range 1 to (board size - 1). Try again.\n");
-				printf("Enter width, height, mineage, and seed again(random seeds fill in -1)\n");
-				scanf("%lf %lf %lf %lf", &width, &height, &num, &seed);
-				// 처음에 입력받고 저장하는 로직과 동일
-				initSet.width = (int)width;
-				initSet.height = (int)height;
-				initSet.num = (int)num;
-				initSet.seed = (int)seed;
-			}
-		} while (isWrongInput);
+void MineNumException(InitialSetting *initSet) {
+	// 초기조건 입력 오류시 예외처리 코드 (mineNum값)
+	int isWrongInput = false;	//잘못된 초기조건 입력 예외처리 플래그 (TRUE == 예외 발생 / FALSE == 정상 진행)
 
-		if (initSet.seed == -1)
-			//사용자가 초기조건 입력시 시드값으로 -1을 입력된 경우
-			initSet.seed = (int)time(NULL);
-	}
-	//시드값 설정
-	srand(initSet.seed);
+	//초기조건 입력 오류시 예외처리 코드(num값)
+	do {
+		if (initSet->num >= initSet->width * initSet->height)
+			//지뢰 갯수가 지뢰판 크기와 같거나 더 크게 입력된 경우
+			isWrongInput = true;
+		else if (initSet->num <= 0)
+			//지뢰 갯수가 0개 또는 음수로 입력된 경우
+			isWrongInput = true;
+		else
+			//지뢰 갯수가 정상 입력된 경우
+			isWrongInput = false;
+		if (isWrongInput) {
+			//잘못된 입력이 주어지면 다시 입력을 요구합니다.
+			printf("[ERROR]The number of mines must be in range 1 to (board size - 1). Try again.\n");
+			GetInitSetFromInput(initSet);
+		}
+	} while (isWrongInput);
+	return;
+}
 
-	//설정된 정보 다시 출력해줌
+void SetRandSeed(InitialSetting *initSet) {
+	//랜덤시드 설정 함수
+	if (initSet->seed == -1)
+		//사용자가 초기조건 입력시 시드값으로 -1을 입력된 경우
+		initSet->seed = (int)time(NULL);
+	return;
+}
+
+void PrintInitSet(InitialSetting initSet) {
+	//설정된 초기설정값 출력 함수
 	printf("Width: %d\n", initSet.width);
 	printf("Height: %d\n", initSet.height);
 	printf("Mines: %d\n", initSet.num);
 	printf("Seed：%d\n", initSet.seed);
+	return;
+}
+
+void InitSetFromConsoleArg(InitialSetting *initSet, int argc, char **argv) {
+	//프로그램 실행 전 옵션으로 인자를 같이 주었다면 해당 인자로 초기조건 설정하는 함수
+	printf("Getting information from argument\n");
+	initSet->width = atoi(argv[1]);
+	initSet->height = atoi(argv[2]);
+	initSet->num = atoi(argv[3]);
+	if (argc > 4)
+		initSet->seed = atoi(argv[4]);
+	else
+		initSet->seed = (int)time(NULL);
+	return;
+}
+
+int main(int argc, char **argv) {
+	InitialSetting initSet = { 0, 0, 0, 0 };	//초기설정값 - initSet이 초기화되지 않았습니다 컴파일 오류를 피하기 위해 불가피하게 임의의 쓰레기 값을 하드코딩
+	int visibleAreaCnt = 0;	//밝혀진 지뢰의 숫자를 0으로 초기화한다
+	int isInitialized = false;	//아직 지뢰판 초기화가 되지 않았으므로 초기화 여부를 FALSE로 설정한다
+	int gameResult = 0;	//게임 승패 여부를 저장 (0 = 게임진행중 / 1 = 게임패배 / 2 = 게임승리)
+
+	if (argc > 3)
+		//프로그램 실행 전 옵션으로 인자를 같이 주었다면 해당 인자로 초기조건 설정
+		InitSetFromConsoleArg(&initSet, argc, argv);
+	else {
+		//별도의 인자를 받지 않았다면 초기조건 사용자 입력받음
+		GetInitSetFromInput(&initSet);
+		//사용자 입력 검증
+		MineFieldSizeException(&initSet);
+		MineNumException(&initSet);
+	}
+
+	//시드값 설정
+	SetRandSeed(&initSet);
+	srand(initSet.seed);
+
+	//설정된 정보 다시 출력해줌
+	PrintInitSet(initSet);
 
 	//지뢰판 동적할당
 	AllocNInitVar(initSet);
