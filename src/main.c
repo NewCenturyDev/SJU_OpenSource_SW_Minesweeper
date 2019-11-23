@@ -362,10 +362,23 @@ int SearchMineHere(SetInfo setInfo, int* visi, int x, int y) {
 	return 0;
 }
 
+int MemoHere(SetInfo setInfo, int x, int y, int mark) {
+	if (!IsVisible(x, y))
+		SetMark(x, y, mark - 1);
+	else {
+		print(0, setInfo);
+		printf("Invaild Command: Already visible\n");
+		return 1;	//예외 발생
+	}
+	print(0, setInfo);
+	return 0;	//정상 진행
+}
+
 int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
 	//TODO: 함수 기능 세분화(하나의 함수가 하나의 기능만 하도록 하기) 하기.
 	int x, y, s;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
-	int gameResult = 0;
+	int gameResult = 0;	//게임 승패 여부를 저장 (0 = 게임진행중 / 1 = 게임패배 / 2 = 게임승리)
+	int skipToNext = 0;	//이번 input 프로세스를 무효화하고(건너뛰고) 다음 input을 받을지 결정하는 플래그 (예외발생(무효화) = 1 / 정상진행 = 0)
 
 	//사용자 입력 처리
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
@@ -390,14 +403,10 @@ int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력
 		}
 		else if (s <= 4 && s > 0) {
 			//해당 좌표에 메모하는 명령(1,2,3,4)를 입력했을 경우
-			if (!IsVisible(x, y))
-				SetMark(x, y, s - 1);
-			else {
-				print(0, setInfo);
-				printf("Invaild Command: Already visible\n");
-				return 0;	//게임 계속 진행
+			skipToNext = MemoHere(setInfo, x, y, s);
+			if (skipToNext == 1) {	//예외 발생시 이번 input 프로세스를 무효화하고 건너뜀
+				return 0;
 			}
-			print(0, setInfo);
 		}
 		else {
 			//잘못된 명령어를 입력했을 경우
