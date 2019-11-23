@@ -148,7 +148,7 @@ void InitArea(SetInfo setInfo) {
 			return;
 		}
 	}
-	
+
 	//구조체 배열의 멤버 값을 초기화한다.
 	for (i = 0; i < setInfo.len; i++) {
 		for (j = 0; j < setInfo.col; j++) {
@@ -262,7 +262,7 @@ void bfs(SetInfo setInfo, int x, int y, int* visi) {
 }
 
 void print(int c, SetInfo setInfo) {
-	char p[] = { ' ', 'O', 'X', '_' };
+	char p[] = { ' ', 'S', 'X', '?' }; //  기존의 'O', '_'를 각각 'S', '?'로 변경하였습니다.
 	int x, y;
 	char mineNumToChar;
 
@@ -291,7 +291,7 @@ void print(int c, SetInfo setInfo) {
 						mineNumToChar = (char)areaInfo[x][y].mineNum + '0';
 						printf("%-2c", mineNumToChar);
 					}
-						
+
 				}
 				else
 					printf("%-2c", p[Mark(x, y)]);
