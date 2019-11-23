@@ -346,11 +346,26 @@ void Initialize(SetInfo setInfo, int* init, int x, int y) {
 		}
 	}
 	*init = TRUE;	//초기화 완료
+	return;
+}
+
+int SearchMineHere(SetInfo setInfo, int* visi, int x, int y) {
+	SetMark(x, y, 0);
+	if (IsHereMine(x, y)) {	//지뢰 밟았을 경우 패배 처리
+		printf("You have lost\n");
+		Gameover(setInfo);
+		print(0, setInfo);
+		return 1;	//패배
+	}
+	bfs(setInfo, x, y, visi);
+	print(0, setInfo);
+	return 0;
 }
 
 int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
 	//TODO: 함수 기능 세분화(하나의 함수가 하나의 기능만 하도록 하기) 하기.
 	int x, y, s;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
+	int gameResult = 0;
 
 	//사용자 입력 처리
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
@@ -392,15 +407,10 @@ int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력
 	}
 	else {
 		//지뢰를 파보는 명령(0)을 입력했을 경우
-		SetMark(x, y, 0);
-		if (IsHereMine(x, y)) {	//지뢰 밟았을 경우 패배 처리
-			printf("You have lost\n");
-			Gameover(setInfo);
-			print(0, setInfo);
-			return 1;	//패배
+		gameResult = SearchMineHere(setInfo, visi, x, y);
+		if (gameResult == 1) {	//만약 패배했다면
+			return 1;	//종료
 		}
-		bfs(setInfo, x, y, visi);
-		print(0, setInfo);
 	}
 	if (*visi == (setInfo.len) * (setInfo.col) - (setInfo.num)) {	//남은 지뢰 갯수 검사
 		//다 찾았을 경우 승리 처리
