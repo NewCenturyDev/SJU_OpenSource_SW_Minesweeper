@@ -469,6 +469,7 @@ int main(int argc, char **argv) {
 	int visi = 0;	//밝혀진 지뢰의 숫자를 0으로 초기화한다
 	int init = FALSE;	//아직 지뢰판 초기화가 되지 않았으므로 초기화 여부를 FALSE로 설정한다
 	int i = 0;
+	int flag = 0;
 	double len, col, num, seed;
 
 	if (argc > 3) {
@@ -489,9 +490,39 @@ int main(int argc, char **argv) {
 		setInfo.num = (int)num; // 실수를 입력받은 경우, int로 형 변환하여 setInfo.num에 저장
 		setInfo.seed = (int)seed; // 실수를 입력받은 경우, int로 형 변환하여 setInfo.seed에 저장
 
-		while (setInfo.len < 1 || setInfo.col < 1) { // col, num 둘 중 하나라도 1 미만이면 다시 입력하게 하는 코드.
+		while (setInfo.len < 1 || setInfo.col < 1 || setInfo.len > 99 || setInfo.col > 99) { // col, num 둘 중 하나라도 1 미만이면 다시 입력하게 하는 코드.
+
+			flag = 0;
 			if (setInfo.len < 1 || setInfo.col < 1) {
+				flag += 1;
+			}
+
+			if (setInfo.len > 99 || setInfo.col > 99) {
+				flag += 2;
+			}
+
+			if (flag == 1) {
 				printf("len and col must be greater than 1 or equal to 1. Try again.\n");
+				printf("Enter length, width, mineage, and seed(random seeds fill in -1)\n");
+				scanf("%lf %lf %lf %lf", &len, &col, &num, &seed);
+				setInfo.len = (int)len; // 처음에 입력받고 저장하는 로직과 동일
+				setInfo.col = (int)col;
+				setInfo.num = (int)num;
+				setInfo.seed = (int)seed;
+			}
+
+			else if (flag == 2) {
+				printf("len and col must be less than 100. Try again.\n");
+				printf("Enter length, width, mineage, and seed(random seeds fill in -1)\n");
+				scanf("%lf %lf %lf %lf", &len, &col, &num, &seed);
+				setInfo.len = (int)len; // 처음에 입력받고 저장하는 로직과 동일
+				setInfo.col = (int)col;
+				setInfo.num = (int)num;
+				setInfo.seed = (int)seed;
+			}
+
+			else {
+				printf("len and col must be greater than 1 or equal to 1, also len and col must be less than 100. Try again.\n");
 				printf("Enter length, width, mineage, and seed(random seeds fill in -1)\n");
 				scanf("%lf %lf %lf %lf", &len, &col, &num, &seed);
 				setInfo.len = (int)len; // 처음에 입력받고 저장하는 로직과 동일
@@ -525,6 +556,7 @@ int main(int argc, char **argv) {
 	printf("Column: %d\n", setInfo.col);
 	printf("Mines: %d\n", setInfo.num);
 	printf("Seed：%d\n", setInfo.seed);
+	system("mode con: cols14 lines=1");
 	InitArea(setInfo);
 	print(0, setInfo);
 	for (; !input(setInfo, &init, &visi););
