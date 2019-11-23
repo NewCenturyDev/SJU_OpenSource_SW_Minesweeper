@@ -97,19 +97,19 @@ void SetVisible(int x, int y, int s) {
 //마크 값 설정
 void SetMark(int x, int y, int s) {
 	switch (s) {
-	case 0:
+	case 1:
 		areaInfo[x][y].mark = 0;
 		break;
 
-	case 1:
+	case 2:
 		areaInfo[x][y].mark = 1;
 		break;
 
-	case 2:
+	case 3:
 		areaInfo[x][y].mark = 2;
 		break;
 
-	case 3:
+	case 4:
 		areaInfo[x][y].mark = 3;
 		break;
 
@@ -385,7 +385,7 @@ int SearchMineHere(SetInfo setInfo, int* visi, int x, int y) {
 int MemoHere(SetInfo setInfo, int x, int y, int mark) {
 	//해당 위치에 메모하는 함수
 	if (!IsVisible(x, y))
-		SetMark(x, y, mark - 1);
+		SetMark(x, y, mark);
 	else {
 		print(0, setInfo);
 		printf("Invaild Command: Already visible\n");
@@ -440,7 +440,10 @@ int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력
 			return gameResult;	//패배
 		break;
 
-	case 1 || 2 || 3 || 4:	//메모 기능 명령
+	case 1:
+	case 2:
+	case 3:
+	case 4://메모 기능 명령
 		skipToNext = MemoHere(setInfo, x, y, command);
 		if (skipToNext == 1)		//예외 발생시 이번 input 프로세스를 무효화하고 건너뜀
 			return gameResult;	//계속 진행
@@ -556,7 +559,6 @@ int main(int argc, char **argv) {
 	printf("Column: %d\n", setInfo.col);
 	printf("Mines: %d\n", setInfo.num);
 	printf("Seed：%d\n", setInfo.seed);
-	system("mode con: cols14 lines=1");
 	InitArea(setInfo);
 	print(0, setInfo);
 	for (; !input(setInfo, &init, &visi););
