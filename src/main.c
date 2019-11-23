@@ -469,6 +469,7 @@ int main(int argc, char **argv) {
 	int visi = 0;	//밝혀진 지뢰의 숫자를 0으로 초기화한다
 	int init = FALSE;	//아직 지뢰판 초기화가 되지 않았으므로 초기화 여부를 FALSE로 설정한다
 	int i = 0;
+	double len, col, num, seed;
 
 	if (argc > 3) {
 		printf("Getting information from argument\n");
@@ -481,7 +482,25 @@ int main(int argc, char **argv) {
 	}
 	else {
 		printf("Enter length, width, mineage, and seed(random seeds fill in -1)\n");
-		scanf("%d %d %d %d", &setInfo.len, &setInfo.col, &setInfo.num, &setInfo.seed);
+		scanf("%lf %lf %lf %lf", &len, &col, &num, &seed); // 정수형이 아닌 실수형으로 입력받습니다.
+
+		setInfo.len = (int)len; // 실수를 입력받은 경우, int로 형 변환하여 setInfo.len에 저장
+		setInfo.col = (int)col; // 실수를 입력받은 경우, int로 형 변환하여 setInfo.col에 저장
+		setInfo.num = (int)num; // 실수를 입력받은 경우, int로 형 변환하여 setInfo.num에 저장
+		setInfo.seed = (int)seed; // 실수를 입력받은 경우, int로 형 변환하여 setInfo.seed에 저장
+
+		while (setInfo.len < 1 || setInfo.col < 1) { // col, num 둘 중 하나라도 1 미만이면 다시 입력하게 하는 코드.
+			if (setInfo.len < 1 || setInfo.col < 1) {
+				printf("len and col must be greater than 1 or equal to 1. Try again.\n");
+				printf("Enter length, width, mineage, and seed(random seeds fill in -1)\n");
+				scanf("%lf %lf %lf %lf", &len, &col, &num, &seed);
+				setInfo.len = (int)len; // 처음에 입력받고 저장하는 로직과 동일
+				setInfo.col = (int)col;
+				setInfo.num = (int)num;
+				setInfo.seed = (int)seed;
+			}
+		}
+
 
 		while (setInfo.num > setInfo.len * setInfo.col || setInfo.num < 0) {
 			if (setInfo.num > setInfo.len * setInfo.col) {
@@ -496,7 +515,7 @@ int main(int argc, char **argv) {
 				scanf("%d %d %d %d", &setInfo.len, &setInfo.col, &setInfo.num, &setInfo.seed);
 			}
 		}
-	
+
 		if (setInfo.seed < 0)
 			setInfo.seed = (int)time(NULL);
 	}
