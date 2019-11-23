@@ -318,11 +318,39 @@ void Gameover(SetInfo setInfo) {
 	return;
 }
 
+void Initialize(SetInfo setInfo, int* init, int x, int y) {
+	/* 함수 설명 */
+	//지뢰판을 초기화하기 위한 함수입니다.
+	int leftMineToInstall = setInfo.num;
+	int a, b, i;	//랜덤으로 선정된 x,y좌표쌍 (a,b)와 for문 반복자
+
+	for (i = 0; i < leftMineToInstall; ++i) {
+		//반복해서 랜덤한 (a, b) 좌표 생성
+		a = rand() % setInfo.len;
+		b = rand() % setInfo.col;
+		if (IsHereMine(a, b) || (a == x && b == y)) {
+			leftMineToInstall++;	//이번 반복횟수를 무효로 하기 위해 1 증가시켜야 함. (continue 하더라도 i는 1 증가해버림. 이를 되돌려주기 위한 조치)
+			continue;
+		}
+		else {
+			//(a,b)좌표에 지뢰 매설 및 주변 8개 칸의 안내숫자 1씩 증가
+			IncNum(a - 1, b - 1, setInfo);
+			IncNum(a - 1, b, setInfo);
+			IncNum(a - 1, b + 1, setInfo);
+			IncNum(a, b - 1, setInfo);
+			SetMine(a, b);
+			IncNum(a, b + 1, setInfo);
+			IncNum(a + 1, b - 1, setInfo);
+			IncNum(a + 1, b, setInfo);
+			IncNum(a + 1, b + 1, setInfo);
+		}
+	}
+	*init = TRUE;	//초기화 완료
+}
+
 int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
 	//TODO: 함수 기능 세분화(하나의 함수가 하나의 기능만 하도록 하기) 하기.
 	int x, y, s;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
-	int a, b, i;	//랜덤으로 선정된 x,y좌표쌍 (a,b)와 for문 반복자
-	int leftMineToInstall = setInfo.num;
 
 	//사용자 입력 처리
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
@@ -337,28 +365,7 @@ int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력
 
 	//게임판 초기화
 	if (*init != TRUE) {
-		for (i = 0; i < leftMineToInstall; ++i) {
-			//반복해서 랜덤한 (a, b) 좌표 생성
-			a = rand() % setInfo.len;
-			b = rand() % setInfo.col;
-			if (IsHereMine(a, b) || (a == x && b == y)) {
-				leftMineToInstall++;	//이번 반복횟수를 무효로 하기 위해 1 증가시켜야 함. (continue 하더라도 i는 1 증가해버림. 이를 되돌려주기 위한 조치)
-				continue;
-			}
-			else {
-				//(a,b)좌표에 지뢰 매설 및 주변 8개 칸의 안내숫자 1씩 증가
-				IncNum(a - 1, b - 1, setInfo);
-				IncNum(a - 1, b, setInfo);
-				IncNum(a - 1, b + 1, setInfo);
-				IncNum(a, b - 1, setInfo);
-				SetMine(a, b);
-				IncNum(a, b + 1, setInfo);
-				IncNum(a + 1, b - 1, setInfo);
-				IncNum(a + 1, b, setInfo);
-				IncNum(a + 1, b + 1, setInfo);
-			}
-		}
-		*init = TRUE;	//초기화 완료
+		Initialize(setInfo, init, x, y);
 	}
 
 	//명령어 검사 및 분기처리
