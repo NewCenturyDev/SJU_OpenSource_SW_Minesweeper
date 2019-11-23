@@ -31,6 +31,9 @@ typedef struct StackNode { //스택 구조를 사용하기 위한 구조체
 
 /* 전역 변수 선언 */
 AreaInfo **areaInfo = NULL; //지뢰판의 정보를 저장할 변수
+const int CONTINUE = 0;	//게임 계속 진행
+const int LOSE = 1;	//게임 패배
+const int WIN = 2;	//게임 승리
 
 /* 함수 원형 선언 */
 //todo: 맨 마지막에 작업할 예정입니다. (디버깅시 혼동 방지를 위해)
@@ -65,6 +68,7 @@ int MineNum(Position pos) {
 
 bool IsOut(Position pos, InitialSetting initSet) {
 	//입력된 좌표가 범위 밖인지 판단하는 함수
+	//좌표의 x,y값이 초기설정한 판 크기보다 크거나, 0보다 작다면 범위 바깥입니다.
 	if (pos.x >= initSet.width || pos.y >= initSet.height || pos.x < 0 || pos.y < 0)
 		return true;
 	return false;
@@ -88,21 +92,25 @@ void SetVisible(Position pos, int visibility) {
 
 void SetMark(Position pos, int mark) {
 	//마크 값 설정 함수
+	const int DELETE = 0;
+	const int SAFE = 1;
+	const int DANGER = 2;
+	const int QUERY = 3;
 	switch (mark) {
 	case 1:
-		areaInfo[pos.x][pos.y].mark = 0;
+		areaInfo[pos.x][pos.y].mark = DELETE;
 		break;
 
 	case 2:
-		areaInfo[pos.x][pos.y].mark = 1;
+		areaInfo[pos.x][pos.y].mark = SAFE;
 		break;
 
 	case 3:
-		areaInfo[pos.x][pos.y].mark = 2;
+		areaInfo[pos.x][pos.y].mark = DANGER;
 		break;
 
 	case 4:
-		areaInfo[pos.x][pos.y].mark = 3;
+		areaInfo[pos.x][pos.y].mark = QUERY;
 		break;
 
 	default:
@@ -208,7 +216,7 @@ int IsEmptyStack(StackNode *stack) {
 }
 
 void SetAdjecantPosition(Position *adjPos, Position pos) {
-	//x, y 주변의 인접한 8칸의 좌표들을 배열에 옮겨담는 함수
+	//x, y 주변의 인접한 8칸의 좌표들을 12시 방향부터 시계방향 순서대로 배열에 옮겨담는 함수
 	//기존의 좌표에서 북쪽에 있는 좌표
 	adjPos[0].x = pos.x; 
 	adjPos[0].y = pos.y + 1;
@@ -265,7 +273,7 @@ void BFS(InitialSetting initSet, Position pos, int* visibleAreaCnt) {
 			//팝한 좌표가 보이는 상태와 범위 밖의 좌표가 아닐 경우 실행
 			//보이는 수를 증가시키고 해당 좌표의 칸을 보이는 상태로 변경
 			++(*visibleAreaCnt);
-			SetVisible(poppedPos, 1);
+			SetVisible(poppedPos, true);
 
 			if (!(areaInfo[poppedPos.x][poppedPos.y].mineNum)) {
 				//주변의 지뢰가 매설되어 있지 않은 경우 실행
@@ -279,7 +287,7 @@ void BFS(InitialSetting initSet, Position pos, int* visibleAreaCnt) {
 	return;
 }
 
-void PrintMineField(int c, InitialSetting initSet) {
+void PrintMineField(int isCheatEnable, InitialSetting initSet) {
 	char p[] = { ' ', 'S', 'X', '?' }; //  기존의 'O', '_'를 각각 'S', '?'로 변경하였습니다.
 	Position nowProcHere;
 	char mineNumToChar;
@@ -291,7 +299,7 @@ void PrintMineField(int c, InitialSetting initSet) {
 	printf("\n");
 	for (nowProcHere.y = initSet.height - 1; nowProcHere.y >= 0; --nowProcHere.y) {
 		printf("%-2d", nowProcHere.y);
-		if (c)
+		if (isCheatEnable)
 			for (nowProcHere.x = 0; nowProcHere.x < initSet.width; ++nowProcHere.x) {
 				if (IsHereMine(nowProcHere))
 					printf("%-2c", '*');
@@ -322,7 +330,7 @@ void PrintMineField(int c, InitialSetting initSet) {
 		printf("%-2d", nowProcHere.x);
 	}
 	printf("\n");
-	if (c)
+	if (isCheatEnable)
 		printf("WARNING: CHAETING DETECTED\n");
 }
 
@@ -330,7 +338,7 @@ void Gameover(InitialSetting initSet) {
 	int i, j;
 	for (i = 0; i < initSet.width; ++i) {
 		for (j = 0; j < (initSet.height); j++) {
-			areaInfo[i][j].isVisible = 1;
+			areaInfo[i][j].isVisible = (int)true;
 		}
 	}
 	return;
@@ -374,12 +382,12 @@ void ProcessGameResult(InitialSetting initSet, int result) {
 	case 1:	//게임 패배
 		printf("You have lost\n");
 		Gameover(initSet);
-		PrintMineField(0, initSet);
+		PrintMineField(false, initSet);
 		return;
 	case 2:	//게임 승리
 		printf("You win\n");
 		Gameover(initSet);
-		PrintMineField(0, initSet);
+		PrintMineField(false, initSet);
 		return;
 	default:	//게임 계속 진행
 		return;
@@ -388,40 +396,43 @@ void ProcessGameResult(InitialSetting initSet, int result) {
 
 int SearchMineHere(InitialSetting initSet, Position inputPos, int* visibleAreaCnt) {
 	//해당 위치의 지뢰를 파 보는 함수
-	int gameResult = 0;	//0 = 게임 계속 진행 / 1 = 게임 패배 / 2 = 게임 승리
+	const int DELETE = 0;
+	int gameResult = CONTINUE;
 
-	SetMark(inputPos, 0);
+	SetMark(inputPos, DELETE);
 	if (IsHereMine(inputPos)) {	//지뢰 밟았을 경우 패배 처리
-		gameResult = 1;
+		gameResult = LOSE;
 		ProcessGameResult(initSet, gameResult);	//패배 처리
 		return gameResult;
 	}
 	BFS(initSet, inputPos, visibleAreaCnt);
-	PrintMineField(0, initSet);
+	PrintMineField(false, initSet);
 	return gameResult;
 }
 
 int MemoHere(InitialSetting initSet, Position inputPos, int mark) {
 	//해당 위치에 메모하는 함수
+	const int ERROR = 1;
+
 	if (!IsVisible(inputPos))
 		SetMark(inputPos, mark);
 	else {
-		PrintMineField(0, initSet);
+		PrintMineField(false, initSet);
 		printf("Invaild Command: Already visible\n");
-		return 1;	//예외 발생
+		return ERROR;	//예외 발생
 	}
-	PrintMineField(0, initSet);
-	return 0;	//정상 진행
+	PrintMineField(false, initSet);
+	return CONTINUE;	//정상 진행
 }
 
 int CheckUnSearchedMines(InitialSetting initSet, int* visibleAreaCnt) {
 	//남은 지뢰 갯수를 검사하는 함수
-	int gameResult = 0;	//0 = 게임 계속 진행 / 1 = 게임 패배 / 2 = 게임 승리
+	int gameResult = CONTINUE	;
 	int safeAreas = initSet.width * initSet.height - initSet.num;
 
 	if (*visibleAreaCnt == safeAreas) {
 		//다 찾았을 경우 승리 처리
-		gameResult = 2;
+		gameResult = WIN;
 		ProcessGameResult(initSet, gameResult);	//승리 처리
 		return gameResult;	//승리
 	}
@@ -430,8 +441,9 @@ int CheckUnSearchedMines(InitialSetting initSet, int* visibleAreaCnt) {
 
 int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleAreaCnt, int command) {
 	//명령어 분기처리 함수
-	int gameResult = 0;	//게임 승패 여부를 저장 (0 = 게임진행중 / 1 = 게임패배 / 2 = 게임승리)
-	int skipToNext = 0;	//이번 UserInput 프로세스를 무효화하고(건너뛰고) 다음 UserInput을 받을지 결정하는 플래그 (예외발생(무효화) = 1 / 정상진행 = 0)
+	const int ERROR = 1;
+	int gameResult = CONTINUE;
+	int skipToNext = CONTINUE;
 
 	switch (command) {
 	case 0:
@@ -445,19 +457,19 @@ int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleArea
 	case 1: case 2: case 3: case 4:
 		//메모 기능 명령(1,2,3,4)
 		skipToNext = MemoHere(initSet, inputPos, command);
-		if (skipToNext == 1)	
+		if (skipToNext == ERROR)	
 			//예외 발생시 이번 input 프로세스를 무효화하고 건너뜀
 			return gameResult;	//계속 진행
 		break;
 
 	case 2147483647:
 		//치트 기능 실행(int 최대값)
-		PrintMineField(1, initSet);	//치트 동작
+		PrintMineField(true, initSet);	//치트 동작
 		return gameResult;	//계속 진행
 
 	default:
 		//잘못된 명령어를 입력했을 경우
-		PrintMineField(0, initSet);
+		PrintMineField(false, initSet);
 		printf("Invaild Command: Command does not exist\n");
 		return gameResult;	//계속 진행
 	}
@@ -467,7 +479,7 @@ int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleArea
 int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
 	Position inputPos;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
 	int command;	//사용자가 입력한 명령어
-	int gameResult = 0;	//게임 승패 여부를 저장 (0 = 게임진행중 / 1 = 게임패배 / 2 = 게임승리)
+	int gameResult = CONTINUE;
 
 	//사용자 입력 처리
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
@@ -475,7 +487,7 @@ int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	/
 
 	//입력값 검증 (좌표값 범위 검사)
 	if (IsOut(inputPos, initSet)) {
-		PrintMineField(0, initSet);
+		PrintMineField(false, initSet);
 		printf("Invaild Command: Out of range\n");
 		return gameResult;	//계속 진행
 	}
@@ -486,7 +498,7 @@ int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	/
 
 	//명령어 검사 및 분기처리
 	gameResult = SwitchingCommand(initSet, inputPos, visibleAreaCnt, command);
-	if (gameResult != 0)
+	if (gameResult != CONTINUE)
 		return gameResult;
 
 	//지뢰를 전부 찾았는지 검사
@@ -596,7 +608,7 @@ int main(int argc, char **argv) {
 	InitialSetting initSet = { 0, 0, 0, 0 };	//초기설정값 - initSet이 초기화되지 않았습니다 컴파일 오류를 피하기 위해 불가피하게 임의의 쓰레기 값을 하드코딩
 	int visibleAreaCnt = 0;	//밝혀진 지뢰의 숫자를 0으로 초기화한다
 	int isInitialized = false;	//아직 지뢰판 초기화가 되지 않았으므로 초기화 여부를 FALSE로 설정한다
-	int gameResult = 0;	//게임 승패 여부를 저장 (0 = 게임진행중 / 1 = 게임패배 / 2 = 게임승리)
+	int gameResult = CONTINUE;	//게임 승패 여부를 저장
 
 	if (argc > 3)
 		//프로그램 실행 전 옵션으로 인자를 같이 주었다면 해당 인자로 초기조건 설정
@@ -620,10 +632,10 @@ int main(int argc, char **argv) {
 	AllocNInitVar(initSet);
 
 	//지뢰판 최초 출력
-	PrintMineField(0, initSet);
+	PrintMineField(false, initSet);
 
-	while (gameResult == 0)
-		//게임결과 플래그가 0인 동안 게임 계속 진행
+	while (gameResult == CONTINUE)
+		//게임결과 플래그가 진행인 동안 게임 계속 진행
 		gameResult = ProcessUserInput(initSet, &isInitialized, &visibleAreaCnt);
 
 	//프로그램 종료시 메모리 할당 해제
