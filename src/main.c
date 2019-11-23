@@ -322,27 +322,27 @@ void Initialize(SetInfo setInfo, int* init, int x, int y) {
 	/* 함수 설명 */
 	//지뢰판을 초기화하기 위한 함수입니다.
 	int leftMineToInstall = setInfo.num;
-	int a, b, i;	//랜덤으로 선정된 x,y좌표쌍 (a,b)와 for문 반복자
+	int randomX, randomY, i;	//랜덤으로 선정된 x,y좌표쌍 (a,b)와 for문 반복자
 
 	for (i = 0; i < leftMineToInstall; ++i) {
 		//반복해서 랜덤한 (a, b) 좌표 생성
-		a = rand() % setInfo.len;
-		b = rand() % setInfo.col;
-		if (IsHereMine(a, b) || (a == x && b == y)) {
+		randomX = rand() % setInfo.len;
+		randomY = rand() % setInfo.col;
+		if (IsHereMine(randomX, randomY) || (randomX == x && randomY == y)) {
 			leftMineToInstall++;	//이번 반복횟수를 무효로 하기 위해 1 증가시켜야 함. (continue 하더라도 i는 1 증가해버림. 이를 되돌려주기 위한 조치)
 			continue;
 		}
 		else {
 			//(a,b)좌표에 지뢰 매설 및 주변 8개 칸의 안내숫자 1씩 증가
-			IncNum(a - 1, b - 1, setInfo);
-			IncNum(a - 1, b, setInfo);
-			IncNum(a - 1, b + 1, setInfo);
-			IncNum(a, b - 1, setInfo);
-			SetMine(a, b);
-			IncNum(a, b + 1, setInfo);
-			IncNum(a + 1, b - 1, setInfo);
-			IncNum(a + 1, b, setInfo);
-			IncNum(a + 1, b + 1, setInfo);
+			IncNum(randomX - 1, randomY - 1, setInfo);
+			IncNum(randomX - 1, randomY, setInfo);
+			IncNum(randomX - 1, randomY + 1, setInfo);
+			IncNum(randomX, randomY - 1, setInfo);
+			SetMine(randomX, randomY);
+			IncNum(randomX, randomY + 1, setInfo);
+			IncNum(randomX + 1, randomY - 1, setInfo);
+			IncNum(randomX + 1, randomY, setInfo);
+			IncNum(randomX + 1, randomY + 1, setInfo);
 		}
 	}
 	*init = TRUE;	//초기화 완료
@@ -411,13 +411,15 @@ int CheckUnSearchedMines(SetInfo setInfo, int* visi) {
 
 int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
 	//TODO: 함수 기능 세분화(하나의 함수가 하나의 기능만 하도록 하기) 하기.
-	int x, y, s;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
+	int x, y;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
+	int command;
 	int gameResult = 0;	//게임 승패 여부를 저장 (0 = 게임진행중 / 1 = 게임패배 / 2 = 게임승리)
 	int skipToNext = 0;	//이번 input 프로세스를 무효화하고(건너뛰고) 다음 input을 받을지 결정하는 플래그 (예외발생(무효화) = 1 / 정상진행 = 0)
+	int trigerCheat = (-1)*(setInfo.seed);
 
 	//사용자 입력 처리
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
-	scanf("%d %d %d", &x, &y, &s);
+	scanf("%d %d %d", &x, &y, &command);
 
 	//입력값 검증 (좌표값 범위 검사)
 	if (IsOut(x, y, setInfo)) {
@@ -427,33 +429,34 @@ int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력
 	}
 
 	//게임판 초기화
-	if (*init != TRUE) {
+	if (*init != TRUE)
 		Initialize(setInfo, init, x, y);
-	}
 
 	//명령어 검사 및 분기처리
-	if (s) {
-		if (s == (-1)*(setInfo.seed)) {	//-seed 값을 명령어로 입력할 경우 치트 동작
-			print(1, setInfo);
-		}
-		else if (s <= 4 && s > 0) {
-			//해당 좌표에 메모하는 명령(1,2,3,4)를 입력했을 경우
-			skipToNext = MemoHere(setInfo, x, y, s);
-			if (skipToNext == 1) {	//예외 발생시 이번 input 프로세스를 무효화하고 건너뜀
-				return gameResult;	//계속 진행
-			}
+	switch (command) {
+	case 0:	//지뢰를 파보는 명령(0)을 입력했을 경우
+		gameResult = SearchMineHere(setInfo, visi, x, y);
+		if (gameResult == 1)	//만약 패배했다면
+			return gameResult;	//패배
+		break;
+
+	case 1 || 2 || 3 || 4:	//메모 기능 명령
+		skipToNext = MemoHere(setInfo, x, y, command);
+		if (skipToNext == 1)		//예외 발생시 이번 input 프로세스를 무효화하고 건너뜀
+			return gameResult;	//계속 진행
+		break;
+
+	default:
+		if (command == trigerCheat) {	//치트 명령어를 입력했을 경우
+			//TODO: 치트 명령어를 -seed 값이 아닌 다른 값으로 변경하기
+			print(1, setInfo);	//치트 동작
+			return gameResult;	//계속 진행
 		}
 		else {
 			//잘못된 명령어를 입력했을 경우
 			print(0, setInfo);
 			printf("Invaild Command: Command does not exist\n");
-		}
-	}
-	else {
-		//지뢰를 파보는 명령(0)을 입력했을 경우
-		gameResult = SearchMineHere(setInfo, visi, x, y);
-		if (gameResult == 1) {	//만약 패배했다면
-			return gameResult;	//패배
+			return gameResult;	//계속 진행
 		}
 	}
 	//지뢰를 전부 찾았는지 검사
