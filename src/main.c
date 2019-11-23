@@ -423,6 +423,21 @@ int main(int argc, char **argv) {
 	else {
 		printf("Enter length, width, mineage, and seed(random seeds fill in -1)\n");
 		scanf("%d %d %d %d", &setInfo.len, &setInfo.col, &setInfo.num, &setInfo.seed);
+
+		while (setInfo.num > setInfo.len * setInfo.col || setInfo.num < 0) {
+			if (setInfo.num > setInfo.len * setInfo.col) {
+				printf("The number of mines you entered is larger than the size of the entire map. Try again.\n");
+				printf("Enter length, width, mineage, and seed(random seeds fill in -1)\n");
+				scanf("%d %d %d %d", &setInfo.len, &setInfo.col, &setInfo.num, &setInfo.seed);
+			}
+
+			if (setInfo.num < 0) {
+				printf("The number of mines you entered is negative. Try again.\n");
+				printf("Enter length, width, mineage, and seed again(random seeds fill in -1)\n");
+				scanf("%d %d %d %d", &setInfo.len, &setInfo.col, &setInfo.num, &setInfo.seed);
+			}
+		}
+	
 		if (setInfo.seed < 0)
 			setInfo.seed = (int)time(NULL);
 	}
@@ -441,4 +456,5 @@ int main(int argc, char **argv) {
 	}
 
 	free(areaInfo);
+	return 0;
 }
