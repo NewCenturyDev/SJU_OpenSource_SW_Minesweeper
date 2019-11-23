@@ -349,20 +349,41 @@ void Initialize(SetInfo setInfo, int* init, int x, int y) {
 	return;
 }
 
-int SearchMineHere(SetInfo setInfo, int* visi, int x, int y) {
-	SetMark(x, y, 0);
-	if (IsHereMine(x, y)) {	//지뢰 밟았을 경우 패배 처리
+void ProcessGameResult(SetInfo setInfo, int result) {
+	//게임 승리 또는 패배시의 작업을 처리하는 함수
+	switch (result) {
+	case 1:	//게임 패배
 		printf("You have lost\n");
 		Gameover(setInfo);
 		print(0, setInfo);
-		return 1;	//패배
+		return;
+	case 2:	//게임 승리
+		printf("You win\n");
+		Gameover(setInfo);
+		print(0, setInfo);
+		return;
+	default:	//게임 계속 진행
+		return;
+	}
+}
+
+int SearchMineHere(SetInfo setInfo, int* visi, int x, int y) {
+	//해당 위치의 지뢰를 파 보는 함수
+	int gameResult = 0;	//0 = 게임 계속 진행 / 1 = 게임 패배 / 2 = 게임 승리
+
+	SetMark(x, y, 0);
+	if (IsHereMine(x, y)) {	//지뢰 밟았을 경우 패배 처리
+		gameResult = 1;
+		ProcessGameResult(setInfo, gameResult);	//패배 처리
+		return gameResult;
 	}
 	bfs(setInfo, x, y, visi);
 	print(0, setInfo);
-	return 0;
+	return gameResult;
 }
 
 int MemoHere(SetInfo setInfo, int x, int y, int mark) {
+	//해당 위치에 메모하는 함수
 	if (!IsVisible(x, y))
 		SetMark(x, y, mark - 1);
 	else {
@@ -372,6 +393,20 @@ int MemoHere(SetInfo setInfo, int x, int y, int mark) {
 	}
 	print(0, setInfo);
 	return 0;	//정상 진행
+}
+
+int CheckUnSearchedMines(SetInfo setInfo, int* visi) {
+	//남은 지뢰 갯수를 검사하는 함수
+	int gameResult = 0;	//0 = 게임 계속 진행 / 1 = 게임 패배 / 2 = 게임 승리
+	int safeAreas = setInfo.len * setInfo.col - setInfo.num;
+
+	if (*visi == safeAreas) {
+		//다 찾았을 경우 승리 처리
+		gameResult = 2;
+		ProcessGameResult(setInfo, gameResult);	//승리 처리
+		return gameResult;	//승리
+	}
+	return gameResult;
 }
 
 int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
@@ -388,7 +423,7 @@ int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력
 	if (IsOut(x, y, setInfo)) {
 		print(0, setInfo);
 		printf("Invaild Command: Out of range\n");
-		return 0;	//게임 계속 진행
+		return gameResult;	//계속 진행
 	}
 
 	//게임판 초기화
@@ -405,7 +440,7 @@ int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력
 			//해당 좌표에 메모하는 명령(1,2,3,4)를 입력했을 경우
 			skipToNext = MemoHere(setInfo, x, y, s);
 			if (skipToNext == 1) {	//예외 발생시 이번 input 프로세스를 무효화하고 건너뜀
-				return 0;
+				return gameResult;	//계속 진행
 			}
 		}
 		else {
@@ -418,17 +453,12 @@ int input(SetInfo setInfo, int* init, int* visi) {	//사용자의 입력, 입력
 		//지뢰를 파보는 명령(0)을 입력했을 경우
 		gameResult = SearchMineHere(setInfo, visi, x, y);
 		if (gameResult == 1) {	//만약 패배했다면
-			return 1;	//종료
+			return gameResult;	//패배
 		}
 	}
-	if (*visi == (setInfo.len) * (setInfo.col) - (setInfo.num)) {	//남은 지뢰 갯수 검사
-		//다 찾았을 경우 승리 처리
-		printf("You win\n");
-		Gameover(setInfo);
-		print(0, setInfo);
-		return 2;	//승리
-	}
-	return 0;	//게임 계속 진행
+	//지뢰를 전부 찾았는지 검사
+	gameResult = CheckUnSearchedMines(setInfo, visi);
+	return gameResult;	//계속 진행 또는 승리
 }
 
 int main(int argc, char **argv) {
