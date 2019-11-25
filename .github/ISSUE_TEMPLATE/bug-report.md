@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: 버그 리포트 양식
-title: 브랜치명 - 간략한 제목
+title: Bugfix# - 간략한 제목
 labels: bug
 assignees: ''
 
