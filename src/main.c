@@ -38,6 +38,7 @@ const int WIN = 2;	//게임 승리
 /* 함수 원형 선언 */
 //todo: 맨 마지막에 작업할 예정입니다. (디버깅시 혼동 방지를 위해)
 
+//타이틀 화면으로 게임 시작, 도움말, 게임 종료 중 하나의 메뉴를 선택할 수 있다.
 int TitleScreen(void) {
 	int select = 1;
 
@@ -74,6 +75,7 @@ int TitleScreen(void) {
 	}
 }
 
+//옵션 화면으로, 게임의 난이도를 선택할 수 있다.
 int OptionScreen() {
 	int select;
 
@@ -730,11 +732,14 @@ int main(int argc, char **argv) {
 		//게임시작
 		if (titleSelection == 1) {
 			optionSelection = OptionScreen();
+
 			switch (optionSelection) {
 			case 0:	case 1:	case 2:	case 3:
+				//기존에 지정되어있는 초기조건으로 입력받음
 				GetInitSetFromDefault(&initSet, optionSelection);
 				break;
 			case 4:
+				//별도의 인자를 받지 않았다면 초기조건 사용자 입력받음
 				GetInitSetFromInput(&initSet);
 				break;
 			default:
