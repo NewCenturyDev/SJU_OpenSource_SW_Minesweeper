@@ -38,9 +38,8 @@ const int WIN = 2;	//게임 승리
 /* 함수 원형 선언 */
 //todo: 맨 마지막에 작업할 예정입니다. (디버깅시 혼동 방지를 위해)
 
-//세가지 메뉴를 고를 수 있는, 타이틀 화면 
 int TitleScreen(void) {
-	int select;
+	int select = 1;
 
 	printf("	--CLS MineSweeper--\n\n");
 	printf("	    1. PLAY\n");
@@ -70,6 +69,40 @@ int TitleScreen(void) {
 		//게임을 종료합니다
 	case 3:
 		exit(0);
+	default:
+		break;
+	}
+}
+
+int OptionScreen() {
+	int select;
+
+	printf("	    STAGE LEVEL\n\n");
+	printf("	    0. EASY\n");
+	printf("	    1. MEDIUM\n");
+	printf("	    2. HARD\n");
+	printf("	    3. EXPERT\n");
+	printf("	    4. CUSTOM LEVEL\n");
+
+	do {
+		scanf_s("%d", &select);
+		if (select != 0 && select != 1 && select != 2 && select != 3 && select != 4) {
+			printf("Wrong input\n");
+			printf("Please enter again\n");
+		}
+	} while (select != 0 && select != 1 && select != 2 && select != 3 && select != 4);
+
+	switch (select) {
+	case 0:
+		return 0;
+	case 1:
+		return 1;
+	case 2:
+		return 2;
+	case 3:
+		return 3;
+	case 4:
+		return 4;
 	default:
 		break;
 	}
@@ -564,6 +597,45 @@ void GetInitSetFromInput(InitialSetting *initSet) {
 	return;
 }
 
+void GetInitSetFromDefault(InitialSetting *initSet, int select) {
+	double width, height, num, seed;	//잘못된 입력이 주어질 때 프로그램이 정지하지 않도록 입력을 임시로 받아줄 변수
+
+	switch (select) {
+	case 0: //EASY
+		width = 10;
+		height = 10;
+		num = 10;
+		seed = -1;
+		break;
+	case 1: //MEDIUM
+		width = 20;
+		height = 20;
+		num = 40;
+		seed = -1;
+		break;
+	case 2: //HARD
+		width = 30;
+		height = 20;
+		num = 100;
+		seed = -1;
+		break;
+	case 3: //EXPERT
+		width = 50;
+		height = 50;
+		num = 500;
+		seed = -1;
+		break;
+	default:
+		break;
+	}
+
+	initSet->width = (int)width; // 실수를 입력받은 경우, int로 형 변환하여 initSet.width에 저장
+	initSet->height = (int)height; // 실수를 입력받은 경우, int로 형 변환하여 initSet.height에 저장
+	initSet->num = (int)num; // 실수를 입력받은 경우, int로 형 변환하여 initSet.num에 저장
+	initSet->seed = (int)seed; // 실수를 입력받은 경우, int로 형 변환하여 initSet.seed에 저장
+	return;
+}
+
 void MineFieldSizeException(InitialSetting *initSet) {
 	// 초기조건 입력 오류시 예외처리 코드 (width, height값)
 	int isWrongInput = false;	//잘못된 초기조건 입력 예외처리 플래그 (TRUE == 예외 발생 / FALSE == 정상 진행)
@@ -644,6 +716,7 @@ void InitSetFromConsoleArg(InitialSetting *initSet, int argc, char **argv) {
 int main(int argc, char **argv) {
 	InitialSetting initSet = { 0, 0, 0, 0 };	//초기설정값 - initSet이 초기화되지 않았습니다 컴파일 오류를 피하기 위해 불가피하게 임의의 쓰레기 값을 하드코딩
 	int titleSelection;
+	int optionSelection;
 	int visibleAreaCnt = 0;	//밝혀진 지뢰의 숫자를 0으로 초기화한다
 	int isInitialized = false;	//아직 지뢰판 초기화가 되지 않았으므로 초기화 여부를 FALSE로 설정한다
 	int gameResult = CONTINUE;	//게임 승패 여부를 저장
@@ -653,6 +726,21 @@ int main(int argc, char **argv) {
 		InitSetFromConsoleArg(&initSet, argc, argv);
 	else {
 		titleSelection = TitleScreen();
+
+		//게임시작
+		if (titleSelection == 1) {
+			optionSelection = OptionScreen();
+			switch (optionSelection) {
+			case 0:	case 1:	case 2:	case 3:
+				GetInitSetFromDefault(&initSet, optionSelection);
+				break;
+			case 4:
+				GetInitSetFromInput(&initSet);
+				break;
+			default:
+				break;
+			}
+		}
 
 		//사용자 입력 검증
 		MineFieldSizeException(&initSet);
