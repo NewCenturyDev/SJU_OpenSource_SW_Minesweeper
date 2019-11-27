@@ -562,11 +562,11 @@ int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	/
 	//사용자 입력 처리
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
 	scanf_s("%d %d %c", &inputPos.x, &inputPos.y, &command);
+	getchar();
 
 	if (command >= '0' && command <= '9') {
 		command = command - '0';
 	}
-
 	//입력값 검증 (좌표값 범위 검사)
 	if (IsOut(inputPos, initSet)) {
 		PrintMineField(false, initSet);
