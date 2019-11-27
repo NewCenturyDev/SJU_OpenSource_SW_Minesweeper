@@ -38,6 +38,78 @@ const int WIN = 2;	//게임 승리
 /* 함수 원형 선언 */
 //todo: 맨 마지막에 작업할 예정입니다. (디버깅시 혼동 방지를 위해)
 
+//타이틀 화면으로 게임 시작, 도움말, 게임 종료 중 하나의 메뉴를 선택할 수 있다.
+int TitleScreen(void) {
+	int select = 1;
+
+	printf("	--CLS MineSweeper--\n\n");
+	printf("	    1. PLAY\n");
+	printf("	    2. HELP (현재 미구현)\n");
+	printf("	    3. EXIT\n\n");
+
+	printf("     Select number to continue\n");
+
+	do {
+		scanf_s("%d", &select);
+		if (select != 1 && select != 2 && select != 3) {
+			printf("Wrong input\n");
+			printf("Please enter again\n");
+		}
+	} while (select != 1 && select != 2 && select != 3);
+
+	switch (select) {
+		//게임을 시작합니다
+	case 1:
+		return 1;
+		//도움말 화면으로 이동합니다
+		//TODO: 도움말 화면의 구현
+	case 2:
+		printf("현재 미구현"); //TODO: 도움말 화면 구현시 제거해야함
+		exit(0);
+		return 2;
+		//게임을 종료합니다
+	case 3:
+		exit(0);
+	default:
+		break;
+	}
+}
+
+//옵션 화면으로, 게임의 난이도를 선택할 수 있다.
+int OptionScreen() {
+	int select;
+
+	printf("	    STAGE LEVEL\n\n");
+	printf("	    0. EASY\n");
+	printf("	    1. MEDIUM\n");
+	printf("	    2. HARD\n");
+	printf("	    3. EXPERT\n");
+	printf("	    4. CUSTOM LEVEL\n");
+
+	do {
+		scanf_s("%d", &select);
+		if (select != 0 && select != 1 && select != 2 && select != 3 && select != 4) {
+			printf("Wrong input\n");
+			printf("Please enter again\n");
+		}
+	} while (select != 0 && select != 1 && select != 2 && select != 3 && select != 4);
+
+	switch (select) {
+	case 0:
+		return 0;
+	case 1:
+		return 1;
+	case 2:
+		return 2;
+	case 3:
+		return 3;
+	case 4:
+		return 4;
+	default:
+		break;
+	}
+}
+
 int IsHereMine(Position pos) {
 	//해당 좌표의 지뢰 유무 값 전달하는 함수
 	int result;
@@ -203,7 +275,7 @@ Position Pop(StackNode **stack) {
 
 	*stack = (*stack)->next;
 	free(popNode);
-	return poppedElem; 
+	return poppedElem;
 }
 
 int IsEmptyStack(StackNode *stack) {
@@ -218,7 +290,7 @@ int IsEmptyStack(StackNode *stack) {
 void SetAdjecantPosition(Position *adjPos, Position pos) {
 	//x, y 주변의 인접한 8칸의 좌표들을 12시 방향부터 시계방향 순서대로 배열에 옮겨담는 함수
 	//기존의 좌표에서 북쪽에 있는 좌표
-	adjPos[0].x = pos.x; 
+	adjPos[0].x = pos.x;
 	adjPos[0].y = pos.y + 1;
 
 	//북동쪽에 있는 좌표
@@ -278,7 +350,7 @@ void BFS(InitialSetting initSet, Position pos, int* visibleAreaCnt) {
 			if (!(areaInfo[poppedPos.x][poppedPos.y].mineNum)) {
 				//주변의 지뢰가 매설되어 있지 않은 경우 실행
 				//주변 8칸의 좌표를 배열에 저장하고 스택에 푸시
-				SetAdjecantPosition(adjPos, poppedPos); 
+				SetAdjecantPosition(adjPos, poppedPos);
 				for (int i = 0; i < adjNum; i++)
 					stack = Push(stack, adjPos[i]);
 			}
@@ -427,7 +499,7 @@ int MemoHere(InitialSetting initSet, Position inputPos, int mark) {
 
 int CheckUnSearchedMines(InitialSetting initSet, int* visibleAreaCnt) {
 	//남은 지뢰 갯수를 검사하는 함수
-	int gameResult = CONTINUE	;
+	int gameResult = CONTINUE;
 	int safeAreas = initSet.width * initSet.height - initSet.num;
 
 	if (*visibleAreaCnt == safeAreas) {
@@ -457,7 +529,7 @@ int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleArea
 	case 1: case 2: case 3: case 4:
 		//메모 기능 명령(1,2,3,4)
 		skipToNext = MemoHere(initSet, inputPos, command);
-		if (skipToNext == ERROR)	
+		if (skipToNext == ERROR)
 			//예외 발생시 이번 input 프로세스를 무효화하고 건너뜀
 			return gameResult;	//계속 진행
 		break;
@@ -483,7 +555,7 @@ int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	/
 
 	//사용자 입력 처리
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
-	scanf("%d %d %d", &inputPos.x, &inputPos.y, &command);
+	scanf_s("%d %d %d", &inputPos.x, &inputPos.y, &command);
 
 	//입력값 검증 (좌표값 범위 검사)
 	if (IsOut(inputPos, initSet)) {
@@ -519,7 +591,46 @@ void GetInitSetFromInput(InitialSetting *initSet) {
 	double width, height, num, seed;	//잘못된 입력이 주어질 때 프로그램이 정지하지 않도록 입력을 임시로 받아줄 변수
 	//초기조건 사용자 입력 처리 함수
 	printf("Enter width, height, mineage, and seed(random seeds fill in -1)\n");
-	scanf("%lf %lf %lf %lf", &width, &height, &num, &seed); // 정수형이 아닌 실수형으로 입력받습니다.
+	scanf_s("%lf %lf %lf %lf", &width, &height, &num, &seed); // 정수형이 아닌 실수형으로 입력받습니다.
+	initSet->width = (int)width; // 실수를 입력받은 경우, int로 형 변환하여 initSet.width에 저장
+	initSet->height = (int)height; // 실수를 입력받은 경우, int로 형 변환하여 initSet.height에 저장
+	initSet->num = (int)num; // 실수를 입력받은 경우, int로 형 변환하여 initSet.num에 저장
+	initSet->seed = (int)seed; // 실수를 입력받은 경우, int로 형 변환하여 initSet.seed에 저장
+	return;
+}
+
+void GetInitSetFromDefault(InitialSetting *initSet, int select) {
+	double width, height, num, seed;	//잘못된 입력이 주어질 때 프로그램이 정지하지 않도록 입력을 임시로 받아줄 변수
+
+	switch (select) {
+	case 0: //EASY
+		width = 10;
+		height = 10;
+		num = 10;
+		seed = -1;
+		break;
+	case 1: //MEDIUM
+		width = 20;
+		height = 20;
+		num = 40;
+		seed = -1;
+		break;
+	case 2: //HARD
+		width = 30;
+		height = 20;
+		num = 100;
+		seed = -1;
+		break;
+	case 3: //EXPERT
+		width = 50;
+		height = 50;
+		num = 500;
+		seed = -1;
+		break;
+	default:
+		break;
+	}
+
 	initSet->width = (int)width; // 실수를 입력받은 경우, int로 형 변환하여 initSet.width에 저장
 	initSet->height = (int)height; // 실수를 입력받은 경우, int로 형 변환하여 initSet.height에 저장
 	initSet->num = (int)num; // 실수를 입력받은 경우, int로 형 변환하여 initSet.num에 저장
@@ -606,6 +717,8 @@ void InitSetFromConsoleArg(InitialSetting *initSet, int argc, char **argv) {
 
 int main(int argc, char **argv) {
 	InitialSetting initSet = { 0, 0, 0, 0 };	//초기설정값 - initSet이 초기화되지 않았습니다 컴파일 오류를 피하기 위해 불가피하게 임의의 쓰레기 값을 하드코딩
+	int titleSelection;
+	int optionSelection;
 	int visibleAreaCnt = 0;	//밝혀진 지뢰의 숫자를 0으로 초기화한다
 	int isInitialized = false;	//아직 지뢰판 초기화가 되지 않았으므로 초기화 여부를 FALSE로 설정한다
 	int gameResult = CONTINUE;	//게임 승패 여부를 저장
@@ -614,8 +727,26 @@ int main(int argc, char **argv) {
 		//프로그램 실행 전 옵션으로 인자를 같이 주었다면 해당 인자로 초기조건 설정
 		InitSetFromConsoleArg(&initSet, argc, argv);
 	else {
-		//별도의 인자를 받지 않았다면 초기조건 사용자 입력받음
-		GetInitSetFromInput(&initSet);
+		titleSelection = TitleScreen();
+
+		//게임시작
+		if (titleSelection == 1) {
+			optionSelection = OptionScreen();
+
+			switch (optionSelection) {
+			case 0:	case 1:	case 2:	case 3:
+				//기존에 지정되어있는 초기조건으로 입력받음
+				GetInitSetFromDefault(&initSet, optionSelection);
+				break;
+			case 4:
+				//별도의 인자를 받지 않았다면 초기조건 사용자 입력받음
+				GetInitSetFromInput(&initSet);
+				break;
+			default:
+				break;
+			}
+		}
+
 		//사용자 입력 검증
 		MineFieldSizeException(&initSet);
 		MineNumException(&initSet);
