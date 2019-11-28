@@ -42,12 +42,17 @@ const int WIN = 2;	//게임 승리
 int TitleScreen(void) {
 	int select = 1;
 
-	printf("	--CLS MineSweeper--\n\n");
-	printf("	    1. PLAY\n");
-	printf("	    2. HELP (현재 미구현)\n");
-	printf("	    3. EXIT\n\n");
+	printf(	"    ┏━━━━━━ CLS MineSweeper ━━━━━━┓\n");
+	printf("    ┃                             ┃\n");
+	printf("    ┃                             ┃\n");
+	printf("    ┃      1. PLAY                ┃\n");
+	printf("    ┃      2. HELP(현재 미구현)   ┃\n");
+	printf("    ┃      3. EXIT                ┃\n");
+	printf("    ┃                             ┃\n");
+	printf("    ┃                             ┃\n");
+	printf("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
 
-	printf("     Select number to continue\n");
+	printf("     Select number to continue : ");
 
 	do {
 		scanf_s("%d", &select);
@@ -56,7 +61,7 @@ int TitleScreen(void) {
 			printf("Please enter again\n");
 		}
 	} while (select != 1 && select != 2 && select != 3);
-
+	printf("\n");
 	switch (select) {
 		//게임을 시작합니다
 	case 1:
@@ -80,21 +85,22 @@ int OptionScreen() {
 	int select;
 
 	printf("	    STAGE LEVEL\n\n");
-	printf("	    0. EASY\n");
-	printf("	    1. MEDIUM\n");
-	printf("	    2. HARD\n");
-	printf("	    3. EXPERT\n");
-	printf("	    4. CUSTOM LEVEL\n");
+	printf("	    1. EASY\n");
+	printf("	    2. MEDIUM\n");
+	printf("	    3. HARD\n");
+	printf("	    4. EXPERT\n");
+	printf("	    5. CUSTOM LEVEL\n\n");
 
 	do {
+		printf("     Select number to continue : ");
 		scanf_s("%d", &select);
-		if (select != 0 && select != 1 && select != 2 && select != 3 && select != 4) {
+		if (select != 1 && select != 2 && select != 3 && select != 4 && select != 5) {
 			printf("Wrong input\n");
 			printf("Please enter again\n");
 		}
-	} while (select != 0 && select != 1 && select != 2 && select != 3 && select != 4);
+	} while (select != 1 && select != 2 && select != 3 && select != 4 && select != 5);
 
-	switch (select) {
+	switch (select-1) {
 	case 0:
 		return 0;
 	case 1:
@@ -511,7 +517,7 @@ int CheckUnSearchedMines(InitialSetting initSet, int* visibleAreaCnt) {
 	return gameResult;
 }
 
-int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleAreaCnt, int command) {
+int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleAreaCnt, char command) {
 	//명령어 분기처리 함수
 	const int ERROR = 1;
 	int gameResult = CONTINUE;
@@ -550,13 +556,17 @@ int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleArea
 
 int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	//사용자의 입력, 입력값 검증, 지뢰 탐색 등의 여러 기능이 있는 함수.
 	Position inputPos;	//사용자로부터 입력받을 x,y좌표와 명령어(s)
-	int command;	//사용자가 입력한 명령어
+	char command;	//사용자가 입력한 명령어
 	int gameResult = CONTINUE;
 
 	//사용자 입력 처리
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
-	scanf_s("%d %d %d", &inputPos.x, &inputPos.y, &command);
+	scanf_s("%d %d %c", &inputPos.x, &inputPos.y, &command);
+	getchar();
 
+	if (command >= '0' && command <= '9') {
+		command = command - '0';
+	}
 	//입력값 검증 (좌표값 범위 검사)
 	if (IsOut(inputPos, initSet)) {
 		PrintMineField(false, initSet);
