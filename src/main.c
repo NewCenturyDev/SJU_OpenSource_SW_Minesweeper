@@ -64,18 +64,22 @@ int TitleScreen(void) {
 
 	printf("\n");
 	switch (select) {
-		//게임을 시작합니다
+	
+	//게임을 시작합니다
 	case 1:
 		return 1;
-		//도움말 화면으로 이동합니다
-		//TODO: 도움말 화면의 구현
+	
+	//도움말 화면으로 이동합니다
+	//TODO: 도움말 화면의 구현
 	case 2:
 		printf("현재 미구현"); //TODO: 도움말 화면 구현시 제거해야함
 		exit(0);
 		return 2;
-		//게임을 종료합니다
+	
+	//게임을 종료합니다
 	case 3:
 		exit(0);
+
 	default:
 		break;
 	}
@@ -85,7 +89,7 @@ int TitleScreen(void) {
 int OptionScreen() {
 	int select;
 
-	printf("	    STAGE LEVEL\n\n");
+	printf("	      STAGE LEVEL\n\n");
 	printf("	    ⑴ EASY\n");
 	printf("	    ⑵ MEDIUM\n");
 	printf("	    ⑶ HARD\n");
@@ -93,11 +97,12 @@ int OptionScreen() {
 	printf("	    ⑸ CUSTOM LEVEL\n\n");
 
 	do {
-		printf("     Select number to continue ☞  ");
+		printf("       Select number to continue :  ");
 		scanf_s("%d", &select);
+
 		if (select != 1 && select != 2 && select != 3 && select != 4 && select != 5) {
-			printf("※ Wrong input ※\n");
-			printf("Please enter again");
+			printf("\n	  |  ※ Wrong input ※ |\n");
+			printf("	  | Please enter again |\n\n");
 		}
 	} while (select != 1 && select != 2 && select != 3 && select != 4 && select != 5);
 
