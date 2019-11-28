@@ -38,43 +38,54 @@ const int WIN = 2;	//게임 승리
 /* 함수 원형 선언 */
 //todo: 맨 마지막에 작업할 예정입니다. (디버깅시 혼동 방지를 위해)
 
+//페이지 구분을 위한 줄
+void printRow(void) {
+	printf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+}
+
 //타이틀 화면으로 게임 시작, 도움말, 게임 종료 중 하나의 메뉴를 선택할 수 있다.
 int TitleScreen(void) {
 	int select = 1;
 
-	printf(	"    ┏━━━━━━ CLS MineSweeper ━━━━━━┓\n");
-	printf("    ┃                             ┃\n");
-	printf("    ┃                             ┃\n");
-	printf("    ┃      ① PLAY                ┃\n");
-	printf("    ┃      ② HELP(현재 미구현)   ┃\n");
-	printf("    ┃      ③ EXIT                ┃\n");
-	printf("    ┃                             ┃\n");
-	printf("    ┃                             ┃\n");
-	printf("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
-
-	printf("     Select number to continue ☞ ");
+	printf("    ┏━━━━━━  CLS MineSweeper ━━━━━━┓\n");
+	printf("    ┃                              ┃\n");
+	printf("    ┃                              ┃\n");
+	printf("    ┃           ① PLAY            ┃\n");
+	printf("    ┃           ② HELP            ┃\n");
+	printf("    ┃           ③ EXIT            ┃\n");
+	printf("    ┃                              ┃\n");
+	printf("    ┃                              ┃\n");
+	printf("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n");
 
 	do {
+		printf("       Select number to continue : ");
 		scanf_s("%d", &select);
+
 		if (select != 1 && select != 2 && select != 3) {
-			printf("Wrong input\n");
-			printf("Please enter again\n");
+			printf("\n	  |  ※ Wrong input ※ |\n");
+			printf("	  | Please enter again |\n\n");
 		}
 	} while (select != 1 && select != 2 && select != 3);
-	printf("\n");
+
+	printRow();
+
 	switch (select) {
-		//게임을 시작합니다
+	
+	//게임을 시작합니다
 	case 1:
 		return 1;
-		//도움말 화면으로 이동합니다
-		//TODO: 도움말 화면의 구현
+	
+	//도움말 화면으로 이동합니다
+	//TODO: 도움말 화면의 구현
 	case 2:
-		printf("현재 미구현"); //TODO: 도움말 화면 구현시 제거해야함
+		printf("Not implemented yet\n"); //TODO: 도움말 화면 구현시 제거해야함
 		exit(0);
 		return 2;
-		//게임을 종료합니다
+	
+	//게임을 종료합니다
 	case 3:
 		exit(0);
+
 	default:
 		break;
 	}
@@ -84,7 +95,7 @@ int TitleScreen(void) {
 int OptionScreen() {
 	int select;
 
-	printf("	    STAGE LEVEL\n\n");
+	printf("	      STAGE LEVEL\n\n");
 	printf("	    ⑴ EASY\n");
 	printf("	    ⑵ MEDIUM\n");
 	printf("	    ⑶ HARD\n");
@@ -92,14 +103,18 @@ int OptionScreen() {
 	printf("	    ⑸ CUSTOM LEVEL\n\n");
 
 	do {
-		printf("     Select number to continue ☞  ");
+		printf("       Select number to continue :  ");
 		scanf_s("%d", &select);
+
 		if (select != 1 && select != 2 && select != 3 && select != 4 && select != 5) {
-			printf("※ Wrong input ※\n");
-			printf("Please enter again");
+			printf("\n	  |  ※ Wrong input ※ |\n");
+			printf("	  | Please enter again |\n\n");
 		}
 	} while (select != 1 && select != 2 && select != 3 && select != 4 && select != 5);
 
+	printRow();
+
+	//0 부터 4 까지 차례로 EASY, MEDIUM, HARD, EXPERT, CUSTOM을 뜻함
 	switch (select-1) {
 	case 0:
 		return 0;
@@ -569,6 +584,8 @@ int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	/
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
 	scanf_s("%d %d %c", &inputPos.x, &inputPos.y, &command);
 	getchar();
+	printf("\n");
+	
 	if (command >= '0' && command <= '9') {
 		command = command - '0';
 	}
@@ -710,10 +727,10 @@ void SetRandSeed(InitialSetting *initSet) {
 
 void PrintInitSet(InitialSetting initSet) {
 	//설정된 초기설정값 출력 함수
-	printf("Width: %d\n", initSet.width);
-	printf("Height: %d\n", initSet.height);
-	printf("Mines: %d\n", initSet.num);
-	printf("Seed：%d\n", initSet.seed);
+	printf(" > Width  : %d\n", initSet.width);
+	printf(" > Height : %d\n", initSet.height);
+	printf(" > Mines  : %d\n", initSet.num);
+	printf(" > Seed   : %d\n\n", initSet.seed);
 	return;
 }
 
