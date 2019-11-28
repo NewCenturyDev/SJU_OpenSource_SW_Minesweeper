@@ -78,7 +78,7 @@ int TitleScreen(void) {
 	//도움말 화면으로 이동합니다
 	//TODO: 도움말 화면의 구현
 	case 2:
-		printf("현재 미구현"); //TODO: 도움말 화면 구현시 제거해야함
+		printf("Not implemented yet\n"); //TODO: 도움말 화면 구현시 제거해야함
 		exit(0);
 		return 2;
 	
@@ -114,6 +114,7 @@ int OptionScreen() {
 
 	printRow();
 
+	//0 부터 4 까지 차례로 EASY, MEDIUM, HARD, EXPERT, CUSTOM을 뜻함
 	switch (select-1) {
 	case 0:
 		return 0;
@@ -583,6 +584,8 @@ int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	/
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
 	scanf_s("%d %d %c", &inputPos.x, &inputPos.y, &command);
 	getchar();
+	printf("\n");
+	
 	if (command >= '0' && command <= '9') {
 		command = command - '0';
 	}
