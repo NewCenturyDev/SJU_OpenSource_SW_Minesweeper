@@ -38,6 +38,11 @@ const int WIN = 2;	//게임 승리
 /* 함수 원형 선언 */
 //todo: 맨 마지막에 작업할 예정입니다. (디버깅시 혼동 방지를 위해)
 
+//페이지 구분을 위한 줄
+void printRow(void) {
+	printf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+}
+
 //타이틀 화면으로 게임 시작, 도움말, 게임 종료 중 하나의 메뉴를 선택할 수 있다.
 int TitleScreen(void) {
 	int select = 1;
@@ -62,7 +67,8 @@ int TitleScreen(void) {
 		}
 	} while (select != 1 && select != 2 && select != 3);
 
-	printf("\n");
+	printRow();
+
 	switch (select) {
 	
 	//게임을 시작합니다
@@ -105,6 +111,8 @@ int OptionScreen() {
 			printf("	  | Please enter again |\n\n");
 		}
 	} while (select != 1 && select != 2 && select != 3 && select != 4 && select != 5);
+
+	printRow();
 
 	switch (select-1) {
 	case 0:
