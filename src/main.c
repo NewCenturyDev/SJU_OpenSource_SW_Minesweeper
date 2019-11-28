@@ -45,14 +45,14 @@ int TitleScreen(void) {
 	printf(	"    ┏━━━━━━ CLS MineSweeper ━━━━━━┓\n");
 	printf("    ┃                             ┃\n");
 	printf("    ┃                             ┃\n");
-	printf("    ┃      1. PLAY                ┃\n");
-	printf("    ┃      2. HELP(현재 미구현)   ┃\n");
-	printf("    ┃      3. EXIT                ┃\n");
+	printf("    ┃      ① PLAY                ┃\n");
+	printf("    ┃      ② HELP(현재 미구현)   ┃\n");
+	printf("    ┃      ③ EXIT                ┃\n");
 	printf("    ┃                             ┃\n");
 	printf("    ┃                             ┃\n");
 	printf("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
 
-	printf("     Select number to continue : ");
+	printf("     Select number to continue ☞ ");
 
 	do {
 		scanf_s("%d", &select);
@@ -85,18 +85,18 @@ int OptionScreen() {
 	int select;
 
 	printf("	    STAGE LEVEL\n\n");
-	printf("	    1. EASY\n");
-	printf("	    2. MEDIUM\n");
-	printf("	    3. HARD\n");
-	printf("	    4. EXPERT\n");
-	printf("	    5. CUSTOM LEVEL\n\n");
+	printf("	    ⑴ EASY\n");
+	printf("	    ⑵ MEDIUM\n");
+	printf("	    ⑶ HARD\n");
+	printf("	    ⑷ EXPERT\n");
+	printf("	    ⑸ CUSTOM LEVEL\n\n");
 
 	do {
-		printf("     Select number to continue : ");
+		printf("     Select number to continue ☞  ");
 		scanf_s("%d", &select);
 		if (select != 1 && select != 2 && select != 3 && select != 4 && select != 5) {
-			printf("Wrong input\n");
-			printf("Please enter again\n");
+			printf("※ Wrong input ※\n");
+			printf("Please enter again");
 		}
 	} while (select != 1 && select != 2 && select != 3 && select != 4 && select != 5);
 
@@ -381,6 +381,7 @@ void PrintMineField(int isCheatEnable, InitialSetting initSet) {
 			for (nowProcHere.x = 0; nowProcHere.x < initSet.width; ++nowProcHere.x) {
 				if (IsHereMine(nowProcHere))
 					printf("%-2c", '*');
+				
 				else {
 					mineNumToChar = (char)areaInfo[nowProcHere.x][nowProcHere.y].mineNum + '0';
 					printf("%-2c", mineNumToChar);
@@ -391,14 +392,16 @@ void PrintMineField(int isCheatEnable, InitialSetting initSet) {
 				if (IsVisible(nowProcHere)) {
 					if (IsHereMine(nowProcHere))
 						printf("%-2c", '*');
+					
 					else {
 						mineNumToChar = (char)areaInfo[nowProcHere.x][nowProcHere.y].mineNum + '0';
 						printf("%-2c", mineNumToChar);
 					}
 
 				}
-				else
+				else 
 					printf("%-2c", p[Mark(nowProcHere)]);
+				
 			}
 		printf("%-2d", nowProcHere.y);
 		printf("\n");
@@ -409,7 +412,7 @@ void PrintMineField(int isCheatEnable, InitialSetting initSet) {
 	}
 	printf("\n");
 	if (isCheatEnable)
-		printf("WARNING: CHAETING DETECTED\n");
+		printf("※ WARNING: CHAETING DETECTED ※\n");
 }
 
 void Gameover(InitialSetting initSet) {
@@ -458,14 +461,17 @@ void ProcessGameResult(InitialSetting initSet, int result) {
 	//게임 승리 또는 패배시의 작업을 처리하는 함수
 	switch (result) {
 	case 1:	//게임 패배
-		printf("You have lost\n");
 		Gameover(initSet);
 		PrintMineField(false, initSet);
+		printf("\n");
+		printf("   ≪ You lose ! ≫\n");
+		
 		return;
 	case 2:	//게임 승리
-		printf("You win\n");
 		Gameover(initSet);
 		PrintMineField(false, initSet);
+		printf("\n");
+		printf("   ≪ You win ! ≫\n");
 		return;
 	default:	//게임 계속 진행
 		return;
@@ -540,8 +546,8 @@ int SwitchingCommand(InitialSetting initSet, Position inputPos, int* visibleArea
 			return gameResult;	//계속 진행
 		break;
 
-	case 2147483647:
-		//치트 기능 실행(int 최대값)
+	case 9:
+		//치트 기능 실행(9)
 		PrintMineField(true, initSet);	//치트 동작
 		return gameResult;	//계속 진행
 
@@ -563,7 +569,6 @@ int ProcessUserInput(InitialSetting initSet, int* init, int* visibleAreaCnt) {	/
 	printf("Enter X coordinate, Y coordinate, and instruction\n");
 	scanf_s("%d %d %c", &inputPos.x, &inputPos.y, &command);
 	getchar();
-
 	if (command >= '0' && command <= '9') {
 		command = command - '0';
 	}
