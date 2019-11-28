@@ -42,25 +42,26 @@ const int WIN = 2;	//게임 승리
 int TitleScreen(void) {
 	int select = 1;
 
-	printf(	"    ┏━━━━━━ CLS MineSweeper ━━━━━━┓\n");
-	printf("    ┃                             ┃\n");
-	printf("    ┃                             ┃\n");
-	printf("    ┃      ① PLAY                ┃\n");
-	printf("    ┃      ② HELP(현재 미구현)   ┃\n");
-	printf("    ┃      ③ EXIT                ┃\n");
-	printf("    ┃                             ┃\n");
-	printf("    ┃                             ┃\n");
-	printf("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
-
-	printf("     Select number to continue ☞ ");
+	printf("    ┏━━━━━━  CLS MineSweeper ━━━━━━┓\n");
+	printf("    ┃                              ┃\n");
+	printf("    ┃                              ┃\n");
+	printf("    ┃           ① PLAY            ┃\n");
+	printf("    ┃           ② HELP            ┃\n");
+	printf("    ┃           ③ EXIT            ┃\n");
+	printf("    ┃                              ┃\n");
+	printf("    ┃                              ┃\n");
+	printf("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n");
 
 	do {
+		printf("       Select number to continue : ");
 		scanf_s("%d", &select);
+
 		if (select != 1 && select != 2 && select != 3) {
-			printf("Wrong input\n");
-			printf("Please enter again\n");
+			printf("\n	  |  ※ Wrong input ※ |\n");
+			printf("	  | Please enter again |\n\n");
 		}
 	} while (select != 1 && select != 2 && select != 3);
+
 	printf("\n");
 	switch (select) {
 		//게임을 시작합니다
