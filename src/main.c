@@ -716,10 +716,10 @@ void SetRandSeed(InitialSetting *initSet) {
 
 void PrintInitSet(InitialSetting initSet) {
 	//설정된 초기설정값 출력 함수
-	printf("Width: %d\n", initSet.width);
-	printf("Height: %d\n", initSet.height);
-	printf("Mines: %d\n", initSet.num);
-	printf("Seed：%d\n", initSet.seed);
+	printf(" > Width  : %d\n", initSet.width);
+	printf(" > Height : %d\n", initSet.height);
+	printf(" > Mines  : %d\n", initSet.num);
+	printf(" > Seed   : %d\n\n", initSet.seed);
 	return;
 }
 
