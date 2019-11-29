@@ -1,4 +1,3 @@
-#pragma warning(disable: 4996)
 #include <stdlib.h>
 #include "game.h"
 #include "stack.h"
@@ -6,6 +5,8 @@
 extern void Initialize(int* init, Position inputPos);
 extern void PrintMineField(int isCheatEnable);
 extern void ProcessGameResult(int result);
+extern void PrintInitSet(void);
+extern void WipeScreen(void);
 extern AreaInfo **areaInfo;
 extern InitialSetting initSet;
 extern const int CONTINUE;

@@ -1,4 +1,3 @@
-#pragma warning(disable: 4996)
 #include <stdlib.h>
 #include <time.h>
 #include "init.h"
