@@ -2,6 +2,7 @@
 
 extern InitialSetting initSet;
 extern void GetInitSetFromInput(void);
+extern void WipeScreen(void);
 
 void MineFieldSizeException(void) {
 	// 초기조건 입력 오류시 예외처리 코드 (width, height값)

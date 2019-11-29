@@ -14,6 +14,10 @@ extern void InitSetFromConsoleArg(int argc, char **argv);
 extern void MineFieldSizeException(void);
 extern void PrintInitSet(void);
 extern void PrintMineField(int isCheatEnable);
+extern void PrintMineField(int isCheatEnable);
+extern void SetRandSeed(void);
+extern int OptionScreen(void);
+extern bool TitleScreen(void);
 
 /* 전역 변수 선언 */
 AreaInfo **areaInfo = NULL; //지뢰판의 정보를 저장할 변수

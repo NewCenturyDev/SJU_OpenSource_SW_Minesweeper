@@ -1,4 +1,3 @@
-#pragma warning(disable: 4996)
 #include "print.h"
 
 extern AreaInfo **areaInfo;
