@@ -825,6 +825,7 @@ int main(int argc, char **argv) {
 	int visibleAreaCnt = 0;	//밝혀진 지뢰의 숫자를 0으로 초기화한다
 	int isInitialized = false;	//아직 지뢰판 초기화가 되지 않았으므로 초기화 여부를 FALSE로 설정한다
 	int gameResult = CONTINUE;	//게임 승패 여부를 저장
+	char anyKey;	//게임 종료시 사용자에게 결과를 보여주기 위해 사용 (GUI 환경에서 터미널창으로 실행시 도스창이 바로 꺼지는 것을 방지하기 위함)
 
 	if (argc > 3)
 		//프로그램 실행 전 옵션으로 인자를 같이 주었다면 해당 인자로 초기조건 설정
@@ -878,5 +879,7 @@ int main(int argc, char **argv) {
 
 	//프로그램 종료시 메모리 할당 해제
 	MemoryUnallocate();
+	printf("PRESS ANY KEY...");
+	scanf_s("%c", &anyKey, 1);
 	return 0;
 }
